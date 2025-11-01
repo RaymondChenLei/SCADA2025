@@ -1,0 +1,32 @@
+﻿using SCADA.Manager;
+using SCADA.Service.Models;
+using SqlSugar;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SCADA.Service.SqlServer
+{
+    public class DailyCheckRecordService : BaseService
+    {
+        public DailyCheckRecordService(ISqlSugarClient client) : base(client)
+        {
+            SetTable<DailyCheckRecord>("DailyCheckRecord");
+        }
+
+        public void InsertRecord(List<DailyCheckRecord> records, out long id)
+        {
+            var deviceid = records.FirstOrDefault().DeviceID;
+            var userid = records.FirstOrDefault().CreateUserID;
+            var shiftdate = records.FirstOrDefault().ShiftDate;
+            Client.Deleteable<DailyCheckRecord>()
+                .Where(it => it.DeviceID == deviceid)
+                .Where(x => x.CreateUserID == userid)
+                .Where(u => u.ShiftDate == shiftdate)
+                .ExecuteCommand();
+            id = Client.Insertable(records).ExecuteReturnSnowflakeId();
+        }
+    }
+}

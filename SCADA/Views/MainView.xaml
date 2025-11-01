@@ -1,0 +1,489 @@
+﻿<Window
+    x:Class="SCADA.Views.MainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:SCADA.Models"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:local="clr-namespace:SCADA.Views"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mng="clr-namespace:SCADA.Manager"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+    Title="SCADA"
+    Width="1280"
+    Height="1024"
+    AllowsTransparency="True"
+    FontFamily="微软雅黑"
+    Left="0"
+    Style="{StaticResource MaterialDesignWindow}"
+    TextElement.FontSize="14"
+    TextElement.FontWeight="Medium"
+    TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+    Top="0"
+    WindowStartupLocation="Manual"
+    WindowState="{Binding MainWindowsState, Mode=TwoWay}"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <Style x:Key="WindowsControlButtonStyle" TargetType="{x:Type ButtonBase}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="2">
+                            <!--  可选圆角  -->
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!--  鼠标悬停效果  -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="wpf:ShadowAssist.Darken" Value="True" />
+                            </Trigger>
+                            <!--  按下效果  -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#6FFFFFFF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="5,0" />
+            <Setter Property="Cursor" Value="{x:Static Cursors.Hand}" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid>
+            <!--  主页部分  -->
+            <DockPanel>
+                <materialDesign:ColorZone
+                    x:Name="ColorZone"
+                    Padding="5"
+                    materialDesign:ElevationAssist.Elevation="Dp4"
+                    DockPanel.Dock="Top"
+                    Mode="Dark">
+                    <Viewbox Stretch="Uniform">
+                        <DockPanel LastChildFill="True">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <!--  最小化按钮  -->
+                                <Button
+                                    x:Name="btnMin"
+                                    Width="25"
+                                    Height="25"
+                                    Background="Transparent"
+                                    Foreground="White"
+                                    Style="{StaticResource WindowsControlButtonStyle}">
+                                    <Button.Content>
+                                        <materialDesign:PackIcon Kind="Minimize" />
+                                    </Button.Content>
+                                </Button>
+                                <!--  最大化按钮  -->
+                                <Button
+                                    x:Name="btnMax"
+                                    Width="25"
+                                    Height="25"
+                                    Background="Transparent"
+                                    Foreground="White"
+                                    Style="{StaticResource WindowsControlButtonStyle}">
+                                    <Button.Content>
+                                        <materialDesign:PackIcon Kind="{Binding MaxButtonKind}" />
+                                    </Button.Content>
+                                </Button>
+                                <!--  关闭按钮  -->
+                                <Button
+                                    x:Name="btnClose"
+                                    Width="25"
+                                    Height="25"
+                                    Background="Transparent"
+                                    Foreground="White"
+                                    Style="{StaticResource WindowsControlButtonStyle}">
+                                    <Button.Content>
+                                        <materialDesign:PackIcon Kind="Close" />
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel
+                                Margin="15,0"
+                                DockPanel.Dock="Left"
+                                Orientation="Horizontal">
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Foreground="#F84018"
+                                    Text="S" />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Text="upervisory " />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Foreground="#F84018"
+                                    Text="C" />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Text="ontrol " />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Foreground="#F84018"
+                                    Text="A" />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Text="nd " />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Foreground="#F84018"
+                                    Text="D" />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Text="ata " />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Foreground="#F84018"
+                                    Text="A" />
+                                <TextBlock
+                                    FontFamily="微软雅黑"
+                                    FontSize="19"
+                                    FontWeight="Black"
+                                    Text="cquisition" />
+                                <TextBlock
+                                    Margin="100,0,0,2"
+                                    VerticalAlignment="Bottom"
+                                    FontFamily="微软雅黑"
+                                    FontSize="8"
+                                    FontWeight="Black"
+                                    Text="Vision 1.25.0.1" />
+                                <Button
+                                    Width="15"
+                                    Height="15"
+                                    VerticalAlignment="Bottom"
+                                    Command="{Binding OpenUpdateNotice}"
+                                    Style="{StaticResource MaterialDesignIconButton}"
+                                    ToolTip="更新公告">
+                                    <materialDesign:PackIcon
+                                        Width="12"
+                                        Height="12"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        Foreground="White"
+                                        Kind="InformationVariantCircleOutline" />
+                                </Button>
+                            </StackPanel>
+                        </DockPanel>
+                    </Viewbox>
+                </materialDesign:ColorZone>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.06*" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <!--  左侧导航  -->
+                    <Viewbox
+                        Width="auto"
+                        VerticalAlignment="Top"
+                        Stretch="Uniform">
+                        <ListBox ItemsSource="{Binding MenuBars}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding NavigateCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ListBox.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource MaterialDesign3.NavigationBarListBoxItem}" TargetType="ListBoxItem">
+                                    <Setter Property="materialDesign:NavigationBarAssist.IsTextVisible" Value="True" />
+                                    <Setter Property="materialDesign:NavigationBarAssist.SelectedIcon" Value="{Binding SelectedIcon}" />
+                                    <Setter Property="materialDesign:NavigationBarAssist.UnselectedIcon" Value="{Binding UnselectedIcon}" />
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.Resources>
+                                <DataTemplate DataType="{x:Type domain:MenuBar}">
+                                    <TextBlock
+                                        VerticalAlignment="Top"
+                                        FontFamily="微软雅黑"
+                                        Text="{Binding Title}" />
+                                </DataTemplate>
+                            </ListBox.Resources>
+                        </ListBox>
+                    </Viewbox>
+                    <!--  主体内容区域  -->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <!--  正文区域  -->
+                        <Canvas
+                            Width="300"
+                            Height="300"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                            <Canvas.Triggers>
+                                <EventTrigger RoutedEvent="Canvas.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image1"
+                                                Storyboard.TargetProperty="Opacity"
+                                                Duration="00:00:0.1">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:00" Value="0" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:0.1" Value="1" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="(Canvas.Left)"
+                                                Duration="00:00:1">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:00" Value="110.1" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1" Value="66.2" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="(Canvas.Top)"
+                                                Duration="00:00:1">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:00" Value="78.6" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1" Value="236.3" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="Width"
+                                                Duration="00:00:1">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:00" Value="30" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1" Value="60" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="Height"
+                                                Duration="00:00:1">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:00" Value="30" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1" Value="60" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <ColorAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="Fill.Color"
+                                                Duration="00:00:1">
+                                                <LinearColorKeyFrame KeyTime="00:00:00" Value="White" />
+                                                <LinearColorKeyFrame KeyTime="00:00:01" Value="#B7D1CF" />
+                                            </ColorAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="line1"
+                                                Storyboard.TargetProperty="X2"
+                                                Duration="00:00:0.78">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:08" Value="122.62" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:0.78" Value="101.15" />
+                                            </DoubleAnimationUsingKeyFrames>
+
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image2"
+                                                Storyboard.TargetProperty="Opacity"
+                                                Duration="00:00:1.1">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1" Value="0" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1.1" Value="1" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="(Canvas.Left)"
+                                                Duration="00:00:2">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:01" Value="66.2" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:2" Value="253.5" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="(Canvas.Top)"
+                                                Duration="00:00:2">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:01" Value="236.3" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:2" Value="118" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="Width"
+                                                Duration="00:00:2">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:01" Value="60" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:2" Value="94.5" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="Height"
+                                                Duration="00:00:2">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:01" Value="60" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:2" Value="94.5" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <ColorAnimationUsingKeyFrames
+                                                Storyboard.TargetName="image"
+                                                Storyboard.TargetProperty="Fill.Color"
+                                                Duration="00:00:2">
+                                                <LinearColorKeyFrame KeyTime="00:00:01" Value="#B7D1CF" />
+                                                <LinearColorKeyFrame KeyTime="00:00:2" Value="#F84018" />
+                                            </ColorAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="line2"
+                                                Storyboard.TargetProperty="X2"
+                                                Duration="00:00:2">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1.3" Value="123.1" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:2" Value="258.39" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="line2"
+                                                Storyboard.TargetProperty="Y2"
+                                                Duration="00:00:2">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:1.3" Value="253.01" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:2" Value="186.18" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames
+                                                Storyboard.TargetName="line1"
+                                                Storyboard.TargetProperty="Y2"
+                                                Duration="00:00:0.78">
+                                                <LinearDoubleKeyFrame KeyTime="00:00:08" Value="108.39" />
+                                                <LinearDoubleKeyFrame KeyTime="00:00:0.78" Value="236.71" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Canvas.Triggers>
+                            <Ellipse
+                                Name="image"
+                                Canvas.Left="110.1"
+                                Canvas.Top="78.6"
+                                Width="30"
+                                Height="30"
+                                Fill="White" />
+                            <Ellipse
+                                Name="image1"
+                                Canvas.Left="110.1"
+                                Canvas.Top="78.6"
+                                Width="30"
+                                Height="30"
+                                Fill="White"
+                                Opacity="0" />
+                            <Ellipse
+                                Name="image2"
+                                Canvas.Left="66.2"
+                                Canvas.Top="236.3"
+                                Width="60"
+                                Height="60"
+                                Fill="#B7D1CF"
+                                Opacity="0" />
+                            <Line
+                                Name="line1"
+                                Stroke="White"
+                                StrokeThickness="4"
+                                X1="122.62"
+                                X2="122.62"
+                                Y1="108.39"
+                                Y2="108.39" />
+                            <Line
+                                Name="line2"
+                                Stroke="White"
+                                StrokeThickness="4"
+                                X1="123.1"
+                                X2="123.1"
+                                Y1="253.01"
+                                Y2="253.01" />
+                        </Canvas>
+                        <ContentControl prism:RegionManager.RegionName="{x:Static mng:PrismManager.MainWindowRegionName}" />
+                        <!--  状态栏  -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel
+                                Margin="5"
+                                Background="{DynamicResource MaterialDesignCardBackground}"
+                                Orientation="Horizontal">
+                                <TextBlock
+                                    Padding="0,5"
+                                    Opacity="0.5"
+                                    Text="状态栏" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="登录信息：" />
+                                <TextBlock Padding="0,5" Text="{Binding Name}" />
+                                <TextBlock Padding="0,5" Text="{Binding ID}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="设备信息：" />
+                                <TextBlock Padding="0,5" Text="{Binding Equipment}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="读卡器通讯状态：" />
+                                <TextBlock Padding="0,5" Text="{Binding CardReaderComStatus}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="读卡器串口信息：" />
+                                <TextBlock Padding="0,5" Text="{Binding CardReaderComInfo}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="继电器通讯状态：" />
+                                <TextBlock Padding="0,5" Text="{Binding ComStatus}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="继电器串口信息：" />
+                                <TextBlock Padding="0,5" Text="{Binding ComInfo}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="传感器状态：" />
+                                <TextBlock Padding="0,5" Text="{Binding SensorStatus}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="计数器：" />
+                                <TextBlock Padding="0,5" Text="{Binding Counter}" />
+                                <TextBlock
+                                    Margin="150,0,0,0"
+                                    Padding="0,5"
+                                    Text="{Binding TikClock}" />
+                            </StackPanel>
+                            <StackPanel
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                Background="{DynamicResource MaterialDesignCardBackground}"
+                                Orientation="Horizontal">
+                                <TextBlock
+                                    Margin="5,0"
+                                    Padding="0,5"
+                                    Text="{Binding TimingCatagory}" />
+                                <TextBlock Padding="0,5" Text="{Binding Time}" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </DockPanel>
+        </Grid>
+        <materialDesign:Snackbar
+            Width="auto"
+            Margin="20"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            FontFamily="微软雅黑"
+            MessageQueue="{Binding Message}" />
+    </Grid>
+</Window>
