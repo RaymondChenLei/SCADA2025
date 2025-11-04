@@ -14,7 +14,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
-            <ColumnDefinition />
+            <ColumnDefinition Width="2*" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <materialDesign:Card Margin="5">
@@ -30,7 +30,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="500" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock Margin="5" Text="生产数量" />
@@ -38,7 +38,7 @@
                     Grid.Row="1"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    FontSize="450">
+                    FontSize="350">
                     <!--  正确的绑定方式  -->
                     <TextBlock.Text>
                         <Binding NotifyOnTargetUpdated="True" Path="TargetValue" />
@@ -107,14 +107,76 @@
                 </TextBlock>
                 <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
-                        <RowDefinition />
+                        <RowDefinition Height="3*" />
                         <RowDefinition />
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            Margin="2,0"
+                            VerticalAlignment="Center"
+                            FontSize="50"
+                            Text="良品数量：" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontSize="50"
+                            Text="{Binding GoodQty}" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Row="1"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            Margin="2,0"
+                            VerticalAlignment="Center"
+                            Text="不良计数：" />
+                        <TextBlock VerticalAlignment="Center" Text="{Binding NGQty}" />
+                        <Button
+                            Width="81"
+                            Height="50"
+                            Margin="30,0,10,0"
+                            Command="{Binding SubtractNG}"
+                            Content="{materialDesign:PackIcon Kind=Minus,
+                                                              Size=40}"
+                            IsEnabled="{Binding IsSubtractNGBtnEnable}" />
+                        <Button
+                            Width="81"
+                            Height="50"
+                            Margin="10,0"
+                            Command="{Binding AddNG}"
+                            Content="{materialDesign:PackIcon Kind=Plus,
+                                                              Size=40}"
+                            IsEnabled="{Binding IsAddNGBtnEnable}" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Row="2"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            Margin="2,0"
+                            VerticalAlignment="Center"
+                            Text="样件计数：" />
+                        <TextBlock VerticalAlignment="Center" Text="{Binding SampleQty}" />
+                        <Button
+                            Width="81"
+                            Height="50"
+                            Margin="30,0,10,0"
+                            Command="{Binding SubtractSample}"
+                            Content="{materialDesign:PackIcon Kind=Minus,
+                                                              Size=40}"
+                            IsEnabled="{Binding IsSubtractSampleBtnEnable}" />
+                        <Button
+                            Width="81"
+                            Height="50"
+                            Margin="10,0"
+                            Command="{Binding AddSample}"
+                            Content="{materialDesign:PackIcon Kind=Plus,
+                                                              Size=40}"
+                            IsEnabled="{Binding IsAddSampleBtnEnable}" />
+                    </StackPanel>
                 </Grid>
             </Grid>
         </materialDesign:Card>

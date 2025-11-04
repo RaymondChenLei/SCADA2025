@@ -195,6 +195,9 @@ namespace SCADA.ViewModels
                             if (previousIOStatus != "有信号")
                             {
                                 Counter++;
+                                TimingHelper timing = new();
+                                timing.TimingSetting(1, out string timingcatagory);
+                                TimingCatagory = timingcatagory;
                             }
                             previousIOStatus = "有信号";
                         };
@@ -325,7 +328,7 @@ namespace SCADA.ViewModels
         private void InitTiming()
         {
             TimingHelper timing = new();
-            timing.TimingSetting(3, out string timingcatagory);
+            timing.TimingSetting(0, out string timingcatagory);
             TimingCatagory = timingcatagory;
         }
 
@@ -496,16 +499,26 @@ namespace SCADA.ViewModels
             TimeSpan timeDiff = DateTime.Now - time;
             Time = $"{timeDiff.Minutes}分{timeDiff.Seconds}秒";
             TimingCatagory = name;
+            if (status.StopID == 1 && timeDiff.TotalSeconds >= 10)
+            {
+                InitTiming();
+            }
         }
 
         private void UpdateInfoDialog()
         {
             string message =
-                "版本号：1.2.25.1"
+                "版本号：1.2.25.2"
                 + Environment.NewLine +
                 "更新说明："
                 + Environment.NewLine +
-                "暂无内容";
+                "1. 完善了计数功能；"
+                + Environment.NewLine +
+                "版本号：1.2.25.3"
+                + Environment.NewLine +
+                "更新说明："
+                + Environment.NewLine +
+                "1. 完善了计时功能；";
             MessageBox.Show(message, "更新公告", MessageBoxButton.OK);
         }
 

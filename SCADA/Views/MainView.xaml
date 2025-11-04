@@ -173,7 +173,7 @@
                                     FontFamily="微软雅黑"
                                     FontSize="8"
                                     FontWeight="Black"
-                                    Text="Vision 1.25.0.1" />
+                                    Text="Vision 1.25.0.3" />
                                 <Button
                                     Width="15"
                                     Height="15"
@@ -403,8 +403,8 @@
                         <!--  状态栏  -->
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
                                 <ColumnDefinition />
+                                <ColumnDefinition Width="auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel
                                 Margin="5"
@@ -428,48 +428,44 @@
                                 <TextBlock
                                     Margin="20,0,0,0"
                                     Padding="0,5"
-                                    Text="读卡器通讯状态：" />
+                                    Text="读卡器状态：" />
                                 <TextBlock Padding="0,5" Text="{Binding CardReaderComStatus}" />
-                                <TextBlock
-                                    Margin="20,0,0,0"
-                                    Padding="0,5"
-                                    Text="读卡器串口信息：" />
                                 <TextBlock Padding="0,5" Text="{Binding CardReaderComInfo}" />
                                 <TextBlock
                                     Margin="20,0,0,0"
                                     Padding="0,5"
-                                    Text="继电器通讯状态：" />
+                                    Text="继电器状态：" />
                                 <TextBlock Padding="0,5" Text="{Binding ComStatus}" />
-                                <TextBlock
-                                    Margin="20,0,0,0"
-                                    Padding="0,5"
-                                    Text="继电器串口信息：" />
                                 <TextBlock Padding="0,5" Text="{Binding ComInfo}" />
                                 <TextBlock
-                                    Margin="20,0,0,0"
+                                    Margin="10,0,0,0"
                                     Padding="0,5"
                                     Text="传感器状态：" />
                                 <TextBlock Padding="0,5" Text="{Binding SensorStatus}" />
                                 <TextBlock
-                                    Margin="20,0,0,0"
+                                    Margin="10,0,0,0"
                                     Padding="0,5"
                                     Text="计数器：" />
                                 <TextBlock Padding="0,5" Text="{Binding Counter}" />
                                 <TextBlock
-                                    Margin="150,0,0,0"
+                                    Margin="20,0,0,0"
                                     Padding="0,5"
                                     Text="{Binding TikClock}" />
                             </StackPanel>
                             <StackPanel
                                 Grid.Column="1"
+                                Margin="10,5"
                                 HorizontalAlignment="Center"
                                 Background="{DynamicResource MaterialDesignCardBackground}"
                                 Orientation="Horizontal">
                                 <TextBlock
-                                    Margin="5,0"
+                                    Margin="10,0,0,0"
                                     Padding="0,5"
                                     Text="{Binding TimingCatagory}" />
-                                <TextBlock Padding="0,5" Text="{Binding Time}" />
+                                <TextBlock
+                                    Margin="5,0,10,0"
+                                    Padding="0,5"
+                                    Text="{Binding Time}" />
                             </StackPanel>
                         </Grid>
                     </Grid>

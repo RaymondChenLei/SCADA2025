@@ -55,5 +55,18 @@ namespace SCADA.Service.SqlServer.Timing
             Client.Deleteable<StopCatelog>().ExecuteCommand();
             Client.Insertable(sqldata).ExecuteCommand();
         }
+
+        public int GetStopID(string name)
+        {
+            var result = Client.Queryable<StopCatelog>().Where(x => x.StopName == name).ToList();
+            if (result.Any())
+            {
+                return result.FirstOrDefault().StopID;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     }
 }
