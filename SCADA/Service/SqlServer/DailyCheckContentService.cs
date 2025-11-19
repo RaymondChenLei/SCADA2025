@@ -23,7 +23,7 @@ namespace SCADA.Service.SqlServer
                 .ToList();
             if (result.Count > 0)
             {
-                var test= Client.Queryable<DailyCheckContent>()
+                var test = Client.Queryable<DailyCheckContent>()
                 .Where(x => x.Type == type)
                 .Where(x => x.IsEnabled == true)
                 .Where(x => x.ReviewID != null)

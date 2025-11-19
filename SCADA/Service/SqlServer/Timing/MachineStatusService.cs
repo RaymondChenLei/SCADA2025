@@ -75,5 +75,24 @@ namespace SCADA.Service.SqlServer.Timing
                 return DateTime.Now;
             }
         }
+
+        public void UpdateStatus(string productNo)
+        {
+            var result = Client.Queryable<MachineStatus>().Where(x => x.ProductNo == productNo).ToList();
+            if (result.Any())
+            {
+                return;
+            }
+            else
+            {
+                MachineStatus record = new()
+                {
+                    ProductNo = productNo,
+                    StartTime = DateTime.Now,
+                    StopID = 0
+                };
+                Client.Insertable(record).ExecuteCommand();
+            }
+        }
     }
 }

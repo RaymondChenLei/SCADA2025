@@ -1,10 +1,14 @@
-﻿using SCADA.Views;
+﻿using SCADA.Interface;
+using SCADA.Service.Helper;
 using SCADA.ViewModels;
+using SCADA.ViewModels.Dialogs;
+using SCADA.ViewModels.HomePages;
+using SCADA.Views;
+using SCADA.Views.Dialogs;
+using SCADA.Views.HomePages;
 using System.Configuration;
 using System.Data;
 using System.Windows;
-using SCADA.Views.HomePages;
-using SCADA.ViewModels.HomePages;
 
 namespace SCADA
 {
@@ -21,12 +25,13 @@ namespace SCADA
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.Register<IDialogHostService, DialogHostService>();
             containerRegistry.RegisterForNavigation<MainView, MainViewModel>();
             containerRegistry.RegisterForNavigation<HomeView, HomeViewModel>();
             containerRegistry.RegisterForNavigation<DailyCheckPage, DailyCheckPageViewModel>();
             containerRegistry.RegisterForNavigation<DownTimePage, DownTimePageViewModel>();
-            containerRegistry.RegisterForNavigation<MaintenancePage, MaintenancePageViewModel>();
             containerRegistry.RegisterForNavigation<ProductionPage, ProductionPageViewModel>();
+            containerRegistry.RegisterForNavigation<ScanDialog, ScanDialogViewModel>();
         }
     }
 }

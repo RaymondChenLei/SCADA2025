@@ -20,6 +20,7 @@ namespace SCADA.Service.Helper
             var classsetting = _classsettingservice.GetSettingList();
             var shiftDAYstarttime = DateTime.Parse(classsetting.Where(x => x.ClassName == "早班").FirstOrDefault().StartTime);
             var shiftdate = DateTime.Now.Hour >= shiftDAYstarttime.Hour && DateTime.Now.Minute >= shiftDAYstarttime.Minute ? DateTime.Today : DateTime.Today.AddDays(-1);
+            GlobalSettings.Instance.ShiftDate = shiftdate;
             LoginRecord loginrecord = new()
             {
                 DeviceID = GlobalSettings.Instance.ProductNo,
@@ -31,10 +32,17 @@ namespace SCADA.Service.Helper
             _loginRecordService.InsertRecord(loginrecord);
             TimingHelper timing = new();
             timing.TimingSetting(0, out string stopname);
+            GlobalSettings.Instance.IsNeedDailyCheck = true;
+        }
+
+        public bool IfNeedDailyCheck()
+        {
+            return _dailycheckrecordservice.IsCheckDone();
         }
 
         #region 属性定义
 
+        private DailyCheckRecordService _dailycheckrecordservice = new(SqlService.Instance.Client);
         private LoginRecordService _loginRecordService = new(SqlService.Instance.Client);
         private UserService _userservice = new(SqlService.Instance.Client);
         private ClassSettingService _classsettingservice = new(SqlService.Instance.Client);

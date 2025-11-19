@@ -11,8 +11,8 @@ namespace SCADA.Manager
         public LocalSetting()
         {
             _trustedinitialcatalog = "APTIV_DATABASE";
-            _datasource = "10.243.21.38";
-            //_datasource = "192.168.3.2";
+            //_datasource = "10.243.21.38";
+            _datasource = "192.168.3.2";
             _initialcatalog = "APTIV_DATABASE";
             _userid = "sa";
             _pwd = "123456";

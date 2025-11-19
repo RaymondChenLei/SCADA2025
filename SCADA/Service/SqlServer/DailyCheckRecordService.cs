@@ -28,5 +28,19 @@ namespace SCADA.Service.SqlServer
                 .ExecuteCommand();
             id = Client.Insertable(records).ExecuteReturnSnowflakeId();
         }
+
+        public bool IsCheckDone()
+        {
+            var result = Client.Queryable<DailyCheckRecord>()
+                .Where(x => x.IsSubmit == true).Count();
+            if (result > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

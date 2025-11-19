@@ -1,4 +1,5 @@
 ﻿using MaterialDesignThemes.Wpf;
+using Newtonsoft.Json.Linq;
 using SCADA.Events;
 using SCADA.Interface;
 using SCADA.Manager;
@@ -24,6 +25,8 @@ namespace SCADA.ViewModels
             _machineStatusService = new(SQLiteService.Instance.Db);
             _stopcatalogservice = new(SQLiteService.Instance.Db);
             _SQLServerstopservice = new(SqlService.Instance.Client);
+            _sqlserverkanbanService = new(SqlService.Instance.Client);
+            _sqlitekanbanService = new(SQLiteService.Instance.Db);
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
             _getportshelper = new GetPorts();
@@ -32,13 +35,13 @@ namespace SCADA.ViewModels
                 ReceivedBytesThreshold = 8 // 确保有完整数据包才触发
             };
             serialPort.DataReceived += SerialPort_DataReceived;
+            Configure();
             timer = new()
             {
                 Interval = TimeSpan.FromMilliseconds(100)
             };
             timer.Tick += Timer_Tick;
             _ = StartStatusCheckLoopAsync();
-            Configure();
         }
 
         public void Configure()
@@ -51,8 +54,56 @@ namespace SCADA.ViewModels
             NavigateCommand = new DelegateCommand<MenuBar>(Navigate);
             Communication();
             CardReaderCommunication();
+            ScannerCommunication();
             InitTiming();
             Equipment = GlobalSettings.Instance.ProductNo;
+        }
+
+        private static string GetSerialPortFriendlyName(string portName)
+        {
+            try
+            {
+                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(
+                    $"SELECT Caption FROM Win32_SerialPort WHERE DeviceID LIKE '%{portName}%'")
+                )
+                {
+                    foreach (ManagementObject portInfo in searcher.Get())
+                    {
+                        return portInfo["Caption"].ToString();
+                    }
+                }
+                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(
+                    $"SELECT Caption FROM Win32_PnPEntity WHERE Name LIKE '%{portName}%'")
+                )
+                {
+                    foreach (ManagementObject pnpDevice in searcher.Get())
+                    {
+                        return pnpDevice["Caption"].ToString();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return "查询失败";
+            }
+            return "未找到设备信息";
+        }
+
+        private int Bit(byte Data0, int temp)
+        {
+            int[] bittemp = new int[8];
+            int i, Data = Data0;
+
+            for (i = 0; i <= temp; i++)
+            {
+                if (Data % 2 == 1)//判断第一位是0或1
+                    bittemp[i] = 1;
+                else
+                    bittemp[i] = 0;
+
+                Data = (int)(Data / 2);
+            }
+            return bittemp[temp];
         }
 
         private void CardReaderCommunication()
@@ -87,6 +138,38 @@ namespace SCADA.ViewModels
             }
         }
 
+        private void ScannerCommunication()
+        {
+            try
+            {
+                GetSerialPortInfo();
+                if (_scannercominfo == null)
+                {
+                    return;
+                }
+                else
+                {
+                    if (!_scannerPort.IsOpen)
+                    {
+                        _scannerPort = new(_scannercominfo, 9600, Parity.None, 8, StopBits.One)
+                        {
+                            DtrEnable = true,
+                            RtsEnable = true,
+                            ReceivedBytesThreshold = 1
+                        };
+                        _scannerPort.Open();
+                        ScannerComStatus = "连接成功";
+                        _scannerPort.DataReceived += SannerPort_DataReceived;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ScannerComStatus = "连接错误";
+                return;
+            }
+        }
+
         private void CardReaderPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke(new Action(CardReaderPortRead));
@@ -103,23 +186,11 @@ namespace SCADA.ViewModels
             Name = UserName;
             ID = UserID;
             Task.Factory.StartNew(() => Message.Enqueue("登录成功！"));
-        }
-
-        private int Bit(byte Data0, int temp)
-        {
-            int[] bittemp = new int[8];
-            int i, Data = Data0;
-
-            for (i = 0; i <= temp; i++)
+            GlobalSettings.Instance.IsNeedDailyCheck = login.IfNeedDailyCheck();
+            if (GlobalSettings.Instance.IsNeedDailyCheck)
             {
-                if (Data % 2 == 1)//判断第一位是0或1
-                    bittemp[i] = 1;
-                else
-                    bittemp[i] = 0;
-
-                Data = (int)(Data / 2);
+                Task.Factory.StartNew(() => Message.Enqueue("请完成点检！"));
             }
-            return bittemp[temp];
         }
 
         private void ChangeButtonKind()
@@ -195,9 +266,14 @@ namespace SCADA.ViewModels
                             if (previousIOStatus != "有信号")
                             {
                                 Counter++;
+                                var nowstopID = _machineStatusService.GetStatus().StopID;
+                                var repireID = _stopcatalogservice.GetStopID("维修");
                                 TimingHelper timing = new();
-                                timing.TimingSetting(1, out string timingcatagory);
-                                TimingCatagory = timingcatagory;
+                                if (nowstopID != repireID)
+                                {
+                                    timing.TimingSetting(1, out string timingcatagory);
+                                    TimingCatagory = timingcatagory;
+                                }
                             }
                             previousIOStatus = "有信号";
                         };
@@ -242,6 +318,7 @@ namespace SCADA.ViewModels
             {
                 GlobalSettings.Instance.ProductNo = appsetting.ProductNo;
                 GlobalSettings.Instance.COMPort = appsetting.RelayModulePort;
+                _machineStatusService.UpdateStatus(appsetting.ProductNo);
             }
             catch (Exception ex)
             {
@@ -292,37 +369,11 @@ namespace SCADA.ViewModels
                 {
                     _cardreadercominfo = activePort;
                 }
-            }
-        }
-
-        private static string GetSerialPortFriendlyName(string portName)
-        {
-            try
-            {
-                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(
-                    $"SELECT Caption FROM Win32_SerialPort WHERE DeviceID LIKE '%{portName}%'")
-                )
+                if (!string.IsNullOrWhiteSpace(friendlyName) && friendlyName.Contains("14XX"))
                 {
-                    foreach (ManagementObject portInfo in searcher.Get())
-                    {
-                        return portInfo["Caption"].ToString();
-                    }
-                }
-                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(
-                    $"SELECT Caption FROM Win32_PnPEntity WHERE Name LIKE '%{portName}%'")
-                )
-                {
-                    foreach (ManagementObject pnpDevice in searcher.Get())
-                    {
-                        return pnpDevice["Caption"].ToString();
-                    }
+                    _scannercominfo = activePort;
                 }
             }
-            catch (Exception)
-            {
-                return "查询失败";
-            }
-            return "未找到设备信息";
         }
 
         private void InitTiming()
@@ -374,6 +425,38 @@ namespace SCADA.ViewModels
             {
                 Data = new byte[8];
                 Message.Enqueue($"数据读取错误: {ex.Message}");
+            }
+        }
+
+        private void SannerPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(ScannerPortRead));
+            System.Threading.Thread.Sleep(150);
+        }
+
+        private void ScannerPortRead()
+        {
+            string receivedData = _scannerPort.ReadExisting();
+            string InitialLetter = receivedData.Substring(0, 1);
+            if (InitialLetter == "L" || InitialLetter == "Y")
+            {
+                if (receivedData == GlobalSettings.Instance.KB)
+                {
+                    Task.Factory.StartNew(() => Message.Enqueue("扫描看板与当前看板一致！"));
+                }
+                else
+                {
+                    GlobalSettings.Instance.KB = receivedData;
+                    _eventAggregator.GetEvent<KBChangeEvent>().Publish(receivedData);
+                }
+            }
+            else if (InitialLetter == "S")
+            {
+                _eventAggregator.GetEvent<ScanTerminalEvent>().Publish(receivedData);
+            }
+            else if (InitialLetter == "J")
+            {
+                _eventAggregator.GetEvent<ScanDieEvent>().Publish(receivedData);
             }
         }
 
@@ -441,7 +524,8 @@ namespace SCADA.ViewModels
                         ComStatus = serialPort.IsOpen ? "已连接" : "未连接";
                         UpdateDateTime();
 
-                        // 只有当未连接时才尝试自动连接
+                        //只有当未连接时才尝试自动连接
+
                         if (!serialPort.IsOpen)
                         {
                             Communication();
@@ -456,6 +540,11 @@ namespace SCADA.ViewModels
                             if (!_cardreaderPort.IsOpen)
                             {
                                 CardReaderCommunication();
+                            }
+                            ScannerComStatus = _scannerPort.IsOpen ? "已连接" : "未连接";
+                            if (!_scannerPort.IsOpen)
+                            {
+                                ScannerCommunication();
                             }
                         }
                     });
@@ -474,7 +563,9 @@ namespace SCADA.ViewModels
         private void SynchronizeData()
         {
             var sqldata = _SQLServerstopservice.GetAllData();
+            var sqlkabban = _sqlserverkanbanService.GetKanban(GlobalSettings.Instance.ProductNo);
             _stopcatalogservice.UpdataAllData(sqldata);
+            _sqlitekanbanService.UpdataAllKanban(sqlkabban);
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -530,6 +621,7 @@ namespace SCADA.ViewModels
         private readonly IRegionManager _regionManager;
         private string _cardreadercominfo;
         private string _cardreadercomstatus;
+        private SerialPort _cardreaderPort = new();
         private string _cominfo;
         private string _comstatus;
         private int _counter;
@@ -543,7 +635,12 @@ namespace SCADA.ViewModels
         private ObservableCollection<MenuBar> _menubars;
         private SnackbarMessageQueue _message;
         private string _name;
+        private string _scannercominfo;
+        private string _scannercomstatus;
+        private SerialPort _scannerPort = new();
         private string _sensorstatus;
+        private HSDKanbanService _sqlitekanbanService;
+        private HSDKanbanService _sqlserverkanbanService;
         private StopCatelogService _SQLServerstopservice;
         private StopCatelogService _stopcatalogservice;
         private string _tikclock;
@@ -552,7 +649,6 @@ namespace SCADA.ViewModels
         private byte[] Data = null;
         private string previousIOStatus;
         private SerialPort serialPort = new();
-        private SerialPort _cardreaderPort = new();
         private DispatcherTimer timer;
 
         public string CardReaderComInfo
@@ -636,7 +732,20 @@ namespace SCADA.ViewModels
         }
 
         public DelegateCommand<MenuBar> NavigateCommand { get; set; }
+
         public DelegateCommand OpenUpdateNotice { get; set; }
+
+        public string ScannerComInfo
+        {
+            get { return _scannercominfo; }
+            set { _scannercominfo = value; RaisePropertyChanged(); }
+        }
+
+        public string ScannerComStatus
+        {
+            get { return _scannercomstatus; }
+            set { _scannercomstatus = value; RaisePropertyChanged(); }
+        }
 
         public string SensorStatus
         {
@@ -659,7 +768,7 @@ namespace SCADA.ViewModels
         public string TimingCatagory
         {
             get { return _timingcatagory; }
-            set { _timingcatagory = value; RaisePropertyChanged(); }
+            set { _timingcatagory = value; RaisePropertyChanged(); _eventAggregator.GetEvent<OnTimingCategoryChanged>().Publish(value); }
         }
 
         private CancellationToken _cancellationToken => _cts.Token;

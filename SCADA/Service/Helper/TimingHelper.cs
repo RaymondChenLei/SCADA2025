@@ -8,15 +8,22 @@ namespace SCADA.Service.Helper
         public void TimingSetting(int stopID, out string stopcatagory)
         {
             var Nowstatus = _machinestatusservice.GetStatus();
-            if (Nowstatus.StopID != stopID)
+            if (Nowstatus is not null)
             {
-                _upowntimerecordservice.SaveLastTiming(Nowstatus);
-                _machinestatusservice.SetStatus(stopID);
-                stopcatagory = _stopcatelogservice.GetStopName(Nowstatus.StopID);
+                if (Nowstatus.StopID != stopID)
+                {
+                    _upowntimerecordservice.SaveLastTiming(Nowstatus);
+                    _machinestatusservice.SetStatus(stopID);
+                    stopcatagory = _stopcatelogservice.GetStopName(Nowstatus.StopID);
+                }
+                else
+                {
+                    stopcatagory = _stopcatelogservice.GetStopName(Nowstatus.StopID);
+                }
             }
             else
             {
-                stopcatagory = _stopcatelogservice.GetStopName(Nowstatus.StopID);
+                stopcatagory = "未分类停机";
             }
         }
 

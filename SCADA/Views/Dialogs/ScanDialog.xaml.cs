@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SCADA.Views.HomePages
+namespace SCADA.Views.Dialogs
 {
     /// <summary>
-    /// MaintenancePage.xaml 的交互逻辑
+    /// ScanDialogH4102.xaml 的交互逻辑
     /// </summary>
-    public partial class MaintenancePage : UserControl
+    public partial class ScanDialog : UserControl
     {
-        public MaintenancePage()
+        public ScanDialog()
         {
             InitializeComponent();
         }

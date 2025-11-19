@@ -173,7 +173,7 @@
                                     FontFamily="微软雅黑"
                                     FontSize="8"
                                     FontWeight="Black"
-                                    Text="Vision 1.25.0.3" />
+                                    Text="Vision 1.25.0.4" />
                                 <Button
                                     Width="15"
                                     Height="15"
@@ -431,6 +431,12 @@
                                     Text="读卡器状态：" />
                                 <TextBlock Padding="0,5" Text="{Binding CardReaderComStatus}" />
                                 <TextBlock Padding="0,5" Text="{Binding CardReaderComInfo}" />
+                                <TextBlock
+                                    Margin="20,0,0,0"
+                                    Padding="0,5"
+                                    Text="扫描枪状态：" />
+                                <TextBlock Padding="0,5" Text="{Binding ScannerComStatus}" />
+                                <TextBlock Padding="0,5" Text="{Binding ScannerComInfo}" />
                                 <TextBlock
                                     Margin="20,0,0,0"
                                     Padding="0,5"

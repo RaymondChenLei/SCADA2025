@@ -34,7 +34,6 @@ namespace SCADA.ViewModels
                     [
                     new (){ Title="点检",SelectedIcon = PackIconKind.EyeOutline, UnselectedIcon = PackIconKind.Eye, NameSpace="DailyCheckPage"},
                     new (){ Title="生产",SelectedIcon = PackIconKind.Restart, UnselectedIcon = PackIconKind.MotionPauseOutline, NameSpace="ProductionPage"},
-                    new (){ Title="报修",SelectedIcon = PackIconKind.WrenchClockOutline, UnselectedIcon = PackIconKind.WrenchClock, NameSpace="MaintenancePage"},
                     new (){ Title="停机",SelectedIcon = PackIconKind.TimerPlayOutline, UnselectedIcon = PackIconKind.TimerPlay, NameSpace="DownTimePage"},
                     ];
                 JsonHelper.WrtToFile(jsonfilepath, menuitems);

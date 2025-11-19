@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCADA.ViewModels.HomePages
+namespace SCADA.Events
 {
-    public class MaintenancePageViewModel
+    public class KBChangeEvent : PubSubEvent<string>
     {
     }
 }

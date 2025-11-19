@@ -45,12 +45,7 @@ namespace SCADA.ViewModels.HomePages
         private void LoadContent()
         {
             ContentList.Clear();
-            LocalSetting localSetting = new();
-            if (!File.Exists(localSetting.AppSettingFilename))
-                return;
-            var ConfigJson = JsonHelper.GetData<Config>(localSetting.AppSettingFilename);
-            type = ConfigJson.MachineType;
-            contents = _dailycheckcontentservice.GetApprovedContent(type);
+            contents = _dailycheckcontentservice.GetApprovedContent(GlobalSettings.Instance.ProductNo);
             if (contents.Count() == 0)
             {
                 Task.Factory.StartNew(() => Message.Enqueue("未找到已批准的" + type + "检查表"));
@@ -58,7 +53,7 @@ namespace SCADA.ViewModels.HomePages
             }
             else
             {
-                EquipmentNo = ConfigJson.ProductNo;
+                EquipmentNo = GlobalSettings.Instance.ProductNo;
                 Remark = contents
                     .Where(x => x.ItemID == 0)
                     .Where(x => x.CheckListID != null)

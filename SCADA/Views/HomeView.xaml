@@ -14,36 +14,40 @@
     d:DesignWidth="800"
     FontFamily="微软雅黑"
     mc:Ignorable="d">
-    <Grid>
+    <materialDesign:DialogHost
+    DialogTheme="Inherit"
+    Identifier="RootDialog"
+    SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Grid Background="{DynamicResource MaterialDesignCardBackground}">
-                <ListBox ItemsSource="{Binding HomeMenubar}" Style="{StaticResource MaterialDesign3.NavigationBarListBox}">
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction Command="{Binding HomeNavigateCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    <ListBox.ItemContainerStyle>
-                        <Style BasedOn="{StaticResource MaterialDesign3.NavigationBarListBoxItem}" TargetType="ListBoxItem">
-                            <Setter Property="materialDesign:NavigationBarAssist.IsTextVisible" Value="True" />
-                            <Setter Property="materialDesign:NavigationBarAssist.SelectedIcon" Value="{Binding SelectedIcon}" />
-                            <Setter Property="materialDesign:NavigationBarAssist.UnselectedIcon" Value="{Binding UnselectedIcon}" />
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.Resources>
-                        <DataTemplate DataType="{x:Type domain:MenuBar}">
-                            <TextBlock Text="{Binding Title}" VerticalAlignment="Top" FontFamily="微软雅黑" />
-                        </DataTemplate>
-                    </ListBox.Resources>
-                </ListBox>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid Background="{DynamicResource MaterialDesignCardBackground}">
+                    <ListBox ItemsSource="{Binding HomeMenubar}" Style="{StaticResource MaterialDesign3.NavigationBarListBox}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding HomeNavigateCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ListBox.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource MaterialDesign3.NavigationBarListBoxItem}" TargetType="ListBoxItem">
+                                <Setter Property="materialDesign:NavigationBarAssist.IsTextVisible" Value="True" />
+                                <Setter Property="materialDesign:NavigationBarAssist.SelectedIcon" Value="{Binding SelectedIcon}" />
+                                <Setter Property="materialDesign:NavigationBarAssist.UnselectedIcon" Value="{Binding UnselectedIcon}" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.Resources>
+                            <DataTemplate DataType="{x:Type domain:MenuBar}">
+                                <TextBlock Text="{Binding Title}" VerticalAlignment="Top" FontFamily="微软雅黑" />
+                            </DataTemplate>
+                        </ListBox.Resources>
+                    </ListBox>
+                </Grid>
+                <ContentControl Grid.Row="1" prism:RegionManager.RegionName="{x:Static mng:PrismManager.HomeRegionName}" />
             </Grid>
-            <ContentControl Grid.Row="1" prism:RegionManager.RegionName="{x:Static mng:PrismManager.HomeRegionName}" />
-        </Grid>
-        <materialDesign:Snackbar
+            <materialDesign:Snackbar
             Width="auto"
             Margin="20"
             HorizontalAlignment="Left"
@@ -52,5 +56,6 @@
             VerticalContentAlignment="Center"
             FontFamily="微软雅黑"
             MessageQueue="{Binding Message}" />
-    </Grid>
+        </Grid>
+    </materialDesign:DialogHost>
 </UserControl>

@@ -1,0 +1,264 @@
+﻿<UserControl
+    x:Class="SCADA.Views.Dialogs.ScanDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SCADA.Views.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Width="960"
+    Height="700"
+    FontFamily="微软雅黑"
+    mc:Ignorable="d">
+    <Canvas>
+        <Canvas.Background>
+            <ImageBrush ImageSource="{Binding BackgroundImage}" Opacity="0.6" />
+        </Canvas.Background>
+        <Button
+            Canvas.Top="0"
+            Canvas.Right="0"
+            Width="50"
+            Height="50"
+            Command="{Binding CloseCommand}"
+            Style="{StaticResource MaterialDesignFlatButton}" />
+        <Image
+            Canvas.Left="400"
+            Canvas.Top="200"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/target.png"
+            Visibility="{Binding TargetDVis}" />
+        <Image
+            Canvas.Left="300"
+            Canvas.Top="520"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/target.png"
+            Visibility="{Binding TargetEVis}" />
+        <Image
+            Canvas.Left="620"
+            Canvas.Top="200"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/target.png"
+            Visibility="{Binding TargetFVis}" />
+        <Image
+            Canvas.Left="560"
+            Canvas.Top="520"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/target.png"
+            Visibility="{Binding TargetGVis}" />
+        <Image
+            Canvas.Left="190"
+            Canvas.Top="20"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/target.png"
+            Visibility="{Binding TargetHVis}" />
+        <Image
+            Canvas.Left="190"
+            Canvas.Top="20"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/target.png"
+            Visibility="{Binding TargetIVis}" />
+        <Image
+            Canvas.Left="400"
+            Canvas.Top="200"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/check.png"
+            Visibility="{Binding CheckDVis}" />
+        <Image
+            Canvas.Left="300"
+            Canvas.Top="520"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/check.png"
+            Visibility="{Binding CheckEVis}" />
+        <Image
+            Canvas.Left="620"
+            Canvas.Top="200"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/check.png"
+            Visibility="{Binding CheckFVis}" />
+        <Image
+            Canvas.Left="560"
+            Canvas.Top="520"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/check.png"
+            Visibility="{Binding CheckGVis}" />
+        <Image
+            Canvas.Left="190"
+            Canvas.Top="20"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/check.png"
+            Visibility="{Binding CheckHVis}" />
+        <Image
+            Canvas.Left="190"
+            Canvas.Top="20"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/check.png"
+            Visibility="{Binding CheckIVis}" />
+        <Image
+            Canvas.Left="400"
+            Canvas.Top="200"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/cross.png"
+            Visibility="{Binding CrossDVis}" />
+        <Image
+            Canvas.Left="300"
+            Canvas.Top="520"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/cross.png"
+            Visibility="{Binding CrossEVis}" />
+        <Image
+            Canvas.Left="620"
+            Canvas.Top="200"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/cross.png"
+            Visibility="{Binding CrossFVis}" />
+        <Image
+            Canvas.Left="560"
+            Canvas.Top="520"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/cross.png"
+            Visibility="{Binding CrossGVis}" />
+        <Image
+            Canvas.Left="190"
+            Canvas.Top="20"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/cross.png"
+            Visibility="{Binding CrossHVis}" />
+        <Image
+            Canvas.Left="190"
+            Canvas.Top="20"
+            Width="100"
+            Height="100"
+            Source="/Views/Image/cross.png"
+            Visibility="{Binding CrossIVis}" />
+        <StackPanel
+            Canvas.Left="380"
+            Canvas.Top="120"
+            Width="150"
+            Background="Black"
+            Orientation="Vertical">
+            <TextBlock HorizontalAlignment="Center" Text="{Binding NameD}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="LightGreen"
+                Text="{Binding TargetD}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="White"
+                Text="{Binding ScannedD}" />
+        </StackPanel>
+        <StackPanel
+            Canvas.Left="280"
+            Canvas.Top="440"
+            Width="150"
+            Background="Black"
+            Orientation="Vertical">
+            <TextBlock HorizontalAlignment="Center" Text="{Binding NameE}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="LightGreen"
+                Text="{Binding TargetE}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="White"
+                Text="{Binding ScannedE}" />
+        </StackPanel>
+        <StackPanel
+            Canvas.Left="600"
+            Canvas.Top="120"
+            Width="150"
+            Background="Black"
+            Orientation="Vertical">
+            <TextBlock HorizontalAlignment="Center" Text="{Binding NameF}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="LightGreen"
+                Text="{Binding TargetF}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="White"
+                Text="{Binding ScannedF}" />
+        </StackPanel>
+        <StackPanel
+            Canvas.Left="530"
+            Canvas.Top="440"
+            Width="150"
+            Background="Black"
+            Orientation="Vertical">
+            <TextBlock HorizontalAlignment="Center" Text="{Binding NameG}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="LightGreen"
+                Text="{Binding TargetG}" />
+            <TextBlock
+                HorizontalAlignment="Center"
+                FontSize="20"
+                FontWeight="Black"
+                Foreground="White"
+                Text="{Binding ScannedG}" />
+        </StackPanel>
+        <StackPanel
+            Canvas.Left="140"
+            Canvas.Top="140"
+            Orientation="Vertical">
+            <TextBlock
+                Width="200"
+                Height="50"
+                Text="{Binding NameH}" />
+            <TextBlock
+                Width="200"
+                Height="50"
+                Text="{Binding TargetH}" />
+            <TextBlock
+                Width="200"
+                Height="50"
+                Text="{Binding ScannedH}" />
+        </StackPanel>
+        <StackPanel
+            Canvas.Left="140"
+            Canvas.Top="140"
+            Orientation="Vertical">
+            <TextBlock
+                Width="200"
+                Height="50"
+                Text="{Binding NameI}" />
+            <TextBlock
+                Width="200"
+                Height="50"
+                Text="{Binding TargetI}" />
+            <TextBlock
+                Width="200"
+                Height="50"
+                Text="{Binding ScannedI}" />
+        </StackPanel>
+    </Canvas>
+</UserControl>
