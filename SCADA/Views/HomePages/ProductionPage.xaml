@@ -31,7 +31,10 @@
                     HorizontalAlignment="Center"
                     FontSize="30"
                     Text="看板信息" />
-                <StackPanel Grid.Row="1" Orientation="Vertical" Margin="5">
+                <StackPanel
+                    Grid.Row="1"
+                    Margin="5"
+                    Orientation="Vertical">
                     <materialDesign:Card>
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="{Binding KanbanTitleA}" />
@@ -274,34 +277,34 @@
                     HorizontalAlignment="Center"
                     FontSize="30"
                     Text="检测信息" />
-                <Viewbox
-                    Grid.Row="1"
-                    VerticalAlignment="Top"
-                    Stretch="Uniform">
-                    <ListBox ItemsSource="{Binding DieParas}">
-                        <ListBox.Resources>
-                            <DataTemplate DataType="{x:Type domain:StringDouble}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Title}" />
-                                        <TextBlock Text=": " />
-                                        <TextBlock Text="{Binding Value1}" />
-                                        <TextBlock Text="~" />
-                                        <TextBlock Text="{Binding Value2}" />
-                                    </StackPanel>
-                                    <TextBox
-                                        Grid.Row="1"
-                                        Foreground="{Binding ActualColor}"
-                                        Text="{Binding ActualValue, Mode=TwoWay}" />
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.Resources>
-                    </ListBox>
-                </Viewbox>
+                <TabControl Grid.Row="1">
+                    <Viewbox VerticalAlignment="Top" Stretch="Uniform">
+                        <ListBox ItemsSource="{Binding DieParas}">
+                            <ListBox.Resources>
+                                <DataTemplate DataType="{x:Type domain:StringDouble}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Title}" />
+                                            <TextBlock Text=": " />
+                                            <TextBlock Text="{Binding Value1}" />
+                                            <TextBlock Text="~" />
+                                            <TextBlock Text="{Binding Value2}" />
+                                        </StackPanel>
+                                        <TextBox
+                                            Grid.Row="1"
+                                            Foreground="{Binding ActualColor}"
+                                            Text="{Binding ActualValue, Mode=TwoWay}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.Resources>
+                        </ListBox>
+                    </Viewbox>
+                </TabControl>
+
                 <Button
                     Grid.Row="2"
                     MinHeight="100"
