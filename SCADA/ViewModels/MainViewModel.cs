@@ -29,18 +29,19 @@ namespace SCADA.ViewModels
             _sqlitekanbanService = new(SQLiteService.Instance.Db);
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
+            eventAggregator.GetEvent<CounterZeroizeEvent>().Subscribe(c => Counter = c);
             _getportshelper = new GetPorts();
             serialPort = new SerialPort
             {
                 ReceivedBytesThreshold = 8 // 确保有完整数据包才触发
             };
             serialPort.DataReceived += SerialPort_DataReceived;
-            Configure();
             timer = new()
             {
                 Interval = TimeSpan.FromMilliseconds(100)
             };
             timer.Tick += Timer_Tick;
+            Configure();
             _ = StartStatusCheckLoopAsync();
         }
 
@@ -138,38 +139,6 @@ namespace SCADA.ViewModels
             }
         }
 
-        private void ScannerCommunication()
-        {
-            try
-            {
-                GetSerialPortInfo();
-                if (_scannercominfo == null)
-                {
-                    return;
-                }
-                else
-                {
-                    if (!_scannerPort.IsOpen)
-                    {
-                        _scannerPort = new(_scannercominfo, 9600, Parity.None, 8, StopBits.One)
-                        {
-                            DtrEnable = true,
-                            RtsEnable = true,
-                            ReceivedBytesThreshold = 1
-                        };
-                        _scannerPort.Open();
-                        ScannerComStatus = "连接成功";
-                        _scannerPort.DataReceived += SannerPort_DataReceived;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                ScannerComStatus = "连接错误";
-                return;
-            }
-        }
-
         private void CardReaderPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             Application.Current.Dispatcher.BeginInvoke(new Action(CardReaderPortRead));
@@ -190,6 +159,7 @@ namespace SCADA.ViewModels
             if (GlobalSettings.Instance.IsNeedDailyCheck)
             {
                 Task.Factory.StartNew(() => Message.Enqueue("请完成点检！"));
+                //还要扫描
             }
         }
 
@@ -336,10 +306,10 @@ namespace SCADA.ViewModels
                 List<MenuBar> initMenubars =
                     [
                     new(){ SelectedIcon=PackIconKind.HomeOutline, UnselectedIcon=PackIconKind.Home, Title="主页", NameSpace="HomeView"},
-                    new(){ SelectedIcon=PackIconKind.ClockOutline, UnselectedIcon=PackIconKind.Clock, Title="记录", NameSpace="HomePage"},
-                    new(){ SelectedIcon=PackIconKind.FolderEyeOutline, UnselectedIcon=PackIconKind.FolderEye, Title="工艺", NameSpace="HomePage"},
-                    new(){ SelectedIcon=PackIconKind.ChartBoxOutline, UnselectedIcon=PackIconKind.ChartBox, Title="图表", NameSpace="HomePage"},
-                    new(){ SelectedIcon=PackIconKind.AccountOutline, UnselectedIcon=PackIconKind.Account, Title="设置", NameSpace="HomePage"},
+                    new(){ SelectedIcon=PackIconKind.ClockOutline, UnselectedIcon=PackIconKind.Clock, Title="记录", NameSpace="RecordsView"},
+                    new(){ SelectedIcon=PackIconKind.FolderEyeOutline, UnselectedIcon=PackIconKind.FolderEye, Title="工艺", NameSpace="ProcessView"},
+                    new(){ SelectedIcon=PackIconKind.ChartBoxOutline, UnselectedIcon=PackIconKind.ChartBox, Title="图表", NameSpace="ChartsView"},
+                    new(){ SelectedIcon=PackIconKind.AccountOutline, UnselectedIcon=PackIconKind.Account, Title="设置", NameSpace="SettingView"},
                     ];
                 JsonHelper.WrtToFile(jsonFilePath, initMenubars);
             }
@@ -432,6 +402,38 @@ namespace SCADA.ViewModels
         {
             Application.Current.Dispatcher.BeginInvoke(new Action(ScannerPortRead));
             System.Threading.Thread.Sleep(150);
+        }
+
+        private void ScannerCommunication()
+        {
+            try
+            {
+                GetSerialPortInfo();
+                if (_scannercominfo == null)
+                {
+                    return;
+                }
+                else
+                {
+                    if (!_scannerPort.IsOpen)
+                    {
+                        _scannerPort = new(_scannercominfo, 9600, Parity.None, 8, StopBits.One)
+                        {
+                            DtrEnable = true,
+                            RtsEnable = true,
+                            ReceivedBytesThreshold = 1
+                        };
+                        _scannerPort.Open();
+                        ScannerComStatus = "连接成功";
+                        _scannerPort.DataReceived += SannerPort_DataReceived;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ScannerComStatus = "连接错误";
+                return;
+            }
         }
 
         private void ScannerPortRead()
@@ -732,7 +734,6 @@ namespace SCADA.ViewModels
         }
 
         public DelegateCommand<MenuBar> NavigateCommand { get; set; }
-
         public DelegateCommand OpenUpdateNotice { get; set; }
 
         public string ScannerComInfo

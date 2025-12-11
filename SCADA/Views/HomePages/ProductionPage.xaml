@@ -14,306 +14,511 @@
     FontFamily="微软雅黑"
     mc:Ignorable="d">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <materialDesign:Card Margin="5" Padding="5">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition />
-                    <RowDefinition Height="auto" />
-                </Grid.RowDefinitions>
-                <TextBlock
-                    Margin="0,5"
-                    HorizontalAlignment="Center"
-                    FontSize="30"
-                    Text="看板信息" />
-                <StackPanel
-                    Grid.Row="1"
-                    Margin="5"
-                    Orientation="Vertical">
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleA}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoA}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleB}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoB}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleC}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoC}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleD}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoD}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleE}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoE}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleF}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoF}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleG}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoG}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleH}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoH}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                    <materialDesign:Card>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding KanbanTitleI}" />
-                            <TextBlock FontSize="40" Text="{Binding KanbanInfoI}" />
-                        </StackPanel>
-                    </materialDesign:Card>
-                </StackPanel>
-                <Button
-                    Grid.Row="2"
-                    MinHeight="100"
-                    Margin="5"
-                    Padding="0,20"
-                    Command="{Binding ChangeMaterial}"
-                    Content="更换原材料"
-                    FontSize="30" />
-            </Grid>
-        </materialDesign:Card>
-        <materialDesign:Card
-            Grid.Column="1"
-            Margin="5"
-            Padding="5">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="500" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock
-                    Margin="0,5"
-                    HorizontalAlignment="Center"
-                    FontSize="30"
-                    Text="生产数量" />
-                <TextBlock
-                    Grid.Row="1"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontSize="350">
-                    <!--  正确的绑定方式  -->
-                    <TextBlock.Text>
-                        <Binding NotifyOnTargetUpdated="True" Path="TargetValue" />
-                    </TextBlock.Text>
-                    <TextBlock.Triggers>
-                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <!--  X轴弹性缩放  -->
-                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" Duration="0:0:0.6">
-                                        <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="1" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.2"
-                                            Value="1.5" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.4"
-                                            Value="0.8" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.5"
-                                            Value="1.1" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.6"
-                                            Value="1.0" />
-                                    </DoubleAnimationUsingKeyFrames>
-                                    <!--  Y轴同步缩放  -->
-                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" Duration="0:0:0.6">
-                                        <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="1" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.2"
-                                            Value="0.5" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.4"
-                                            Value="1.3" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.5"
-                                            Value="0.9" />
-                                        <SplineDoubleKeyFrame
-                                            KeySpline="0.2,0.8,0.8,0.2"
-                                            KeyTime="0:0:0.6"
-                                            Value="1.0" />
-                                    </DoubleAnimationUsingKeyFrames>
-                                    <!--  颜色闪烁效果  -->
-                                    <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.3">
-                                        <DiscreteColorKeyFrame KeyTime="0:0:0.1" Value="#FFFF0000" />
-                                        <DiscreteColorKeyFrame KeyTime="0:0:0.3" Value="#FF0078D7" />
-                                    </ColorAnimationUsingKeyFrames>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </TextBlock.Triggers>
-                    <!--  变换中心点设置  -->
-                    <TextBlock.RenderTransform>
-                        <ScaleTransform CenterX="0.5" CenterY="0.5" />
-                    </TextBlock.RenderTransform>
-                    <!--  默认颜色设置  -->
-                    <TextBlock.Foreground>
-                        <SolidColorBrush Color="#FF0078D7" />
-                    </TextBlock.Foreground>
-                </TextBlock>
-                <Grid Grid.Row="2">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <materialDesign:Card Margin="5" Padding="5">
+                <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="auto" />
                         <RowDefinition />
-                        <RowDefinition />
+                        <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
-                    <StackPanel
-                        Grid.Column="1"
+                    <TextBlock
+                        Margin="0,5"
                         HorizontalAlignment="Center"
-                        Orientation="Horizontal">
-                        <TextBlock
-                            Margin="2,0"
-                            VerticalAlignment="Center"
-                            FontSize="50"
-                            Text="良品数量：" />
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontSize="50"
-                            Text="{Binding GoodQty}" />
-                    </StackPanel>
+                        FontSize="30"
+                        Text="看板信息" />
                     <StackPanel
                         Grid.Row="1"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal">
-                        <TextBlock
-                            Margin="2,0"
-                            VerticalAlignment="Center"
-                            Text="不良计数：" />
-                        <TextBlock VerticalAlignment="Center" Text="{Binding NGQty}" />
-                        <Button
-                            Width="81"
-                            Height="50"
-                            Margin="30,0,10,0"
-                            Command="{Binding SubtractNG}"
-                            Content="{materialDesign:PackIcon Kind=Minus,
-                                                              Size=40}"
-                            IsEnabled="{Binding IsSubtractNGBtnEnable}" />
-                        <Button
-                            Width="81"
-                            Height="50"
-                            Margin="10,0"
-                            Command="{Binding AddNG}"
-                            Content="{materialDesign:PackIcon Kind=Plus,
-                                                              Size=40}"
-                            IsEnabled="{Binding IsAddNGBtnEnable}" />
+                        Margin="5"
+                        Orientation="Vertical">
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleA}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoA}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleB}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoB}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleC}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoC}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleD}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoD}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleE}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoE}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleF}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoF}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleG}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoG}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleH}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoH}" />
+                            </StackPanel>
+                        </materialDesign:Card>
+                        <materialDesign:Card>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding KanbanTitleI}" />
+                                <TextBlock FontSize="40" Text="{Binding KanbanInfoI}" />
+                            </StackPanel>
+                        </materialDesign:Card>
                     </StackPanel>
-                    <StackPanel
+                    <Button
                         Grid.Row="2"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal">
-                        <TextBlock
-                            Margin="2,0"
-                            VerticalAlignment="Center"
-                            Text="样件计数：" />
-                        <TextBlock VerticalAlignment="Center" Text="{Binding SampleQty}" />
-                        <Button
-                            Width="81"
-                            Height="50"
-                            Margin="30,0,10,0"
-                            Command="{Binding SubtractSample}"
-                            Content="{materialDesign:PackIcon Kind=Minus,
-                                                              Size=40}"
-                            IsEnabled="{Binding IsSubtractSampleBtnEnable}" />
-                        <Button
-                            Width="81"
-                            Height="50"
-                            Margin="10,0"
-                            Command="{Binding AddSample}"
-                            Content="{materialDesign:PackIcon Kind=Plus,
-                                                              Size=40}"
-                            IsEnabled="{Binding IsAddSampleBtnEnable}" />
-                    </StackPanel>
+                        MinHeight="100"
+                        Margin="5"
+                        Padding="0,20"
+                        Command="{Binding ChangeMaterial}"
+                        Content="更换原材料"
+                        FontSize="30" />
                 </Grid>
-            </Grid>
-        </materialDesign:Card>
-        <materialDesign:Card
-            Grid.Column="2"
-            Margin="5"
-            Padding="5">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                </Grid.RowDefinitions>
-                <TextBlock
-                    Margin="0,5"
-                    HorizontalAlignment="Center"
-                    FontSize="30"
-                    Text="检测信息" />
-                <TabControl Grid.Row="1">
-                    <Viewbox VerticalAlignment="Top" Stretch="Uniform">
-                        <ListBox ItemsSource="{Binding DieParas}">
-                            <ListBox.Resources>
-                                <DataTemplate DataType="{x:Type domain:StringDouble}">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition />
-                                            <RowDefinition />
-                                        </Grid.RowDefinitions>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding Title}" />
-                                            <TextBlock Text=": " />
-                                            <TextBlock Text="{Binding Value1}" />
-                                            <TextBlock Text="~" />
-                                            <TextBlock Text="{Binding Value2}" />
-                                        </StackPanel>
-                                        <TextBox
-                                            Grid.Row="1"
-                                            Foreground="{Binding ActualColor}"
-                                            Text="{Binding ActualValue, Mode=TwoWay}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.Resources>
-                        </ListBox>
-                    </Viewbox>
-                </TabControl>
-
-                <Button
-                    Grid.Row="2"
-                    MinHeight="100"
-                    Margin="5"
-                    Padding="0,20"
-                    Command="{Binding Check}"
-                    Content="检查"
-                    FontSize="30" />
-            </Grid>
-        </materialDesign:Card>
+            </materialDesign:Card>
+            <materialDesign:Card
+                Grid.Column="1"
+                Margin="5"
+                Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="500" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Margin="0,5"
+                        HorizontalAlignment="Center"
+                        FontSize="30"
+                        Text="生产数量" />
+                    <TextBlock
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="350">
+                        <!--  正确的绑定方式  -->
+                        <TextBlock.Text>
+                            <Binding NotifyOnTargetUpdated="True" Path="TargetValue" />
+                        </TextBlock.Text>
+                        <TextBlock.Triggers>
+                            <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!--  X轴弹性缩放  -->
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" Duration="0:0:0.6">
+                                            <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="1" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.2"
+                                                Value="1.5" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.4"
+                                                Value="0.8" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.5"
+                                                Value="1.1" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.6"
+                                                Value="1.0" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <!--  Y轴同步缩放  -->
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" Duration="0:0:0.6">
+                                            <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="1" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.2"
+                                                Value="0.5" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.4"
+                                                Value="1.3" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.5"
+                                                Value="0.9" />
+                                            <SplineDoubleKeyFrame
+                                                KeySpline="0.2,0.8,0.8,0.2"
+                                                KeyTime="0:0:0.6"
+                                                Value="1.0" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <!--  颜色闪烁效果  -->
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" Duration="0:0:0.3">
+                                            <DiscreteColorKeyFrame KeyTime="0:0:0.1" Value="#FFFF0000" />
+                                            <DiscreteColorKeyFrame KeyTime="0:0:0.3" Value="#FF0078D7" />
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </TextBlock.Triggers>
+                        <!--  变换中心点设置  -->
+                        <TextBlock.RenderTransform>
+                            <ScaleTransform CenterX="0.5" CenterY="0.5" />
+                        </TextBlock.RenderTransform>
+                        <!--  默认颜色设置  -->
+                        <TextBlock.Foreground>
+                            <SolidColorBrush Color="#FF0078D7" />
+                        </TextBlock.Foreground>
+                    </TextBlock>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="3*" />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock
+                                Margin="2,0"
+                                VerticalAlignment="Center"
+                                FontSize="50"
+                                Text="良品数量：" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="50"
+                                Text="{Binding GoodQty}" />
+                        </StackPanel>
+                        <StackPanel
+                            Grid.Row="1"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock
+                                Margin="2,0"
+                                VerticalAlignment="Center"
+                                Text="不良计数：" />
+                            <TextBlock VerticalAlignment="Center" Text="{Binding NGQty}" />
+                            <Button
+                                Width="81"
+                                Height="50"
+                                Margin="30,0,10,0"
+                                Command="{Binding SubtractNG}"
+                                Content="{materialDesign:PackIcon Kind=Minus,
+                                                                  Size=40}"
+                                IsEnabled="{Binding IsSubtractNGBtnEnable}" />
+                            <Button
+                                Width="81"
+                                Height="50"
+                                Margin="10,0"
+                                Command="{Binding AddNG}"
+                                Content="{materialDesign:PackIcon Kind=Plus,
+                                                                  Size=40}"
+                                IsEnabled="{Binding IsAddNGBtnEnable}" />
+                        </StackPanel>
+                        <StackPanel
+                            Grid.Row="2"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock
+                                Margin="2,0"
+                                VerticalAlignment="Center"
+                                Text="样件计数：" />
+                            <TextBlock VerticalAlignment="Center" Text="{Binding SampleQty}" />
+                            <Button
+                                Width="81"
+                                Height="50"
+                                Margin="30,0,10,0"
+                                Command="{Binding SubtractSample}"
+                                Content="{materialDesign:PackIcon Kind=Minus,
+                                                                  Size=40}"
+                                IsEnabled="{Binding IsSubtractSampleBtnEnable}" />
+                            <Button
+                                Width="81"
+                                Height="50"
+                                Margin="10,0"
+                                Command="{Binding AddSample}"
+                                Content="{materialDesign:PackIcon Kind=Plus,
+                                                                  Size=40}"
+                                IsEnabled="{Binding IsAddSampleBtnEnable}" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </materialDesign:Card>
+            <materialDesign:Card
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="5"
+                Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Margin="0,5"
+                        HorizontalAlignment="Center"
+                        FontSize="30"
+                        Text="检测信息" />
+                    <Grid Grid.Row="1">
+                        <TabControl Grid.Row="1" TabStripPlacement="Bottom">
+                            <TabControl.Resources>
+                                <Style TargetType="TabControl">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TabControl">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                    </Grid.RowDefinitions>
+                                                    <WrapPanel
+                                                        Grid.Row="0"
+                                                        IsItemsHost="True"
+                                                        Orientation="Horizontal" />
+                                                    <ContentPresenter Grid.Row="1" ContentSource="SelectedContent" />
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                                <Style TargetType="TabItem">
+                                    <Setter Property="Width" Value="60" />
+                                    <Setter Property="Height" Value="30" />
+                                    <Setter Property="FontSize" Value="24" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="Foreground" Value="Red" />
+                                </Style>
+                            </TabControl.Resources>
+                            <TabItem
+                                Width="140"
+                                Height="50"
+                                Background="Orange"
+                                Header="橙">
+                                <Viewbox
+                                    Height="620"
+                                    VerticalAlignment="Top"
+                                    Stretch="Uniform">
+                                    <ListBox ItemsSource="{Binding DieParasOrange}">
+                                        <ListBox.Resources>
+                                            <DataTemplate DataType="{x:Type domain:StringDouble}">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Title}" />
+                                                        <TextBlock Text=": " />
+                                                        <TextBlock Text="{Binding Value1}" />
+                                                        <TextBlock Text="~" />
+                                                        <TextBlock Text="{Binding Value2}" />
+                                                    </StackPanel>
+                                                    <TextBox
+                                                        Grid.Row="1"
+                                                        Foreground="{Binding ActualColor}"
+                                                        Text="{Binding ActualValue, Mode=TwoWay}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.Resources>
+                                    </ListBox>
+                                </Viewbox>
+                            </TabItem>
+                            <TabItem
+                                Width="140"
+                                Height="50"
+                                Background="Blue"
+                                Header="蓝">
+                                <Viewbox
+                                    Height="620"
+                                    VerticalAlignment="Top"
+                                    Stretch="Uniform">
+                                    <ListBox ItemsSource="{Binding DieParasBlue}">
+                                        <ListBox.Resources>
+                                            <DataTemplate DataType="{x:Type domain:StringDouble}">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Title}" />
+                                                        <TextBlock Text=": " />
+                                                        <TextBlock Text="{Binding Value1}" />
+                                                        <TextBlock Text="~" />
+                                                        <TextBlock Text="{Binding Value2}" />
+                                                    </StackPanel>
+                                                    <TextBox
+                                                        Grid.Row="1"
+                                                        Foreground="{Binding ActualColor}"
+                                                        Text="{Binding ActualValue, Mode=TwoWay}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.Resources>
+                                    </ListBox>
+                                </Viewbox>
+                            </TabItem>
+                            <TabItem
+                                Width="140"
+                                Height="50"
+                                Background="Green"
+                                Header="绿">
+                                <Viewbox
+                                    Height="620"
+                                    VerticalAlignment="Top"
+                                    Stretch="Uniform">
+                                    <ListBox ItemsSource="{Binding DieParasGreen}">
+                                        <ListBox.Resources>
+                                            <DataTemplate DataType="{x:Type domain:StringDouble}">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Title}" />
+                                                        <TextBlock Text=": " />
+                                                        <TextBlock Text="{Binding Value1}" />
+                                                        <TextBlock Text="~" />
+                                                        <TextBlock Text="{Binding Value2}" />
+                                                    </StackPanel>
+                                                    <TextBox
+                                                        Grid.Row="1"
+                                                        Foreground="{Binding ActualColor}"
+                                                        Text="{Binding ActualValue, Mode=TwoWay}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.Resources>
+                                    </ListBox>
+                                </Viewbox>
+                            </TabItem>
+                            <TabItem
+                                Width="140"
+                                Height="50"
+                                Background="SaddleBrown"
+                                Header="粽">
+                                <Viewbox
+                                    Height="620"
+                                    VerticalAlignment="Top"
+                                    Stretch="Uniform">
+                                    <ListBox ItemsSource="{Binding DieParasBrown}">
+                                        <ListBox.Resources>
+                                            <DataTemplate DataType="{x:Type domain:StringDouble}">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Title}" />
+                                                        <TextBlock Text=": " />
+                                                        <TextBlock Text="{Binding Value1}" />
+                                                        <TextBlock Text="~" />
+                                                        <TextBlock Text="{Binding Value2}" />
+                                                    </StackPanel>
+                                                    <TextBox
+                                                        Grid.Row="1"
+                                                        Foreground="{Binding ActualColor}"
+                                                        Text="{Binding ActualValue, Mode=TwoWay}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.Resources>
+                                    </ListBox>
+                                </Viewbox>
+                            </TabItem>
+                        </TabControl>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox
+                                HorizontalAlignment="Center"
+                                Content="外观检查"
+                                FontSize="20"
+                                IsChecked="{Binding IsVisualOK}"
+                                Style="{StaticResource MaterialDesignFilterChipSecondaryOutlineCheckBox}" />
+                            <CheckBox
+                                Grid.Column="1"
+                                HorizontalAlignment="Center"
+                                Content="弯曲测试"
+                                FontSize="20"
+                                IsChecked="{Binding IsBendingOK}"
+                                Style="{StaticResource MaterialDesignFilterChipSecondaryOutlineCheckBox}" />
+                        </Grid>
+                        <ComboBox
+                            Grid.Row="1"
+                            Height="70"
+                            Margin="5"
+                            materialDesign:HintAssist.Hint="检验类型"
+                            FontSize="25"
+                            Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                            Text="{Binding Type, Mode=TwoWay}">
+                            <ComboBoxItem Content="首检" />
+                            <ComboBoxItem Content="中检" />
+                            <ComboBoxItem Content="末检" />
+                        </ComboBox>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Button
+                                Grid.Row="2"
+                                MinHeight="100"
+                                Margin="5"
+                                Padding="0,20"
+                                Command="{Binding StartSample}"
+                                Content="开始样件"
+                                FontSize="30" />
+                            <Button
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                MinHeight="100"
+                                Margin="5"
+                                Padding="0,20"
+                                Command="{Binding SaveCommand}"
+                                Content="保存"
+                                FontSize="30"
+                                IsEnabled="{Binding IsSaveBtnEnable}" />
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </materialDesign:Card>
+        </Grid>
+        <materialDesign:Snackbar
+            Width="auto"
+            Margin="20"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            FontFamily="微软雅黑"
+            MessageQueue="{Binding Message}" />
     </Grid>
 </UserControl>

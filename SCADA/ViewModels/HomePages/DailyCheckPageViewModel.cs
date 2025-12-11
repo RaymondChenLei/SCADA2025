@@ -23,9 +23,9 @@ namespace SCADA.ViewModels.HomePages
     {
         public DailyCheckPageViewModel()
         {
-            _dailycheckcontentservice = new DailyCheckContentService(SqlService.Instance.Client);
-            _dailycheckrecordservice = new DailyCheckRecordService(SqlService.Instance.Client);
-            _dailycheckreviewservice = new DailyCheckReviewService(SqlService.Instance.Client);
+            _dailycheckcontentservice = new(SqlService.Instance.Client);
+            _dailycheckrecordservice = new(SqlService.Instance.Client);
+            _dailycheckreviewservice = new(SqlService.Instance.Client);
             Message = new();
             ContentList = [];
             contents = [];
@@ -208,6 +208,7 @@ namespace SCADA.ViewModels.HomePages
                     Remark = ProblemJson
                 };
                 _dailycheckreviewservice.InsertRecord(review);
+
                 Task.Factory.StartNew(() => Message.Enqueue("已提交！"));
             }
         }

@@ -50,6 +50,7 @@ namespace SCADA.ViewModels.Dialogs
         public void OnDialogOpend(IDialogParameters parameters)
         {
             var equipment = GlobalSettings.Instance.ProductNo;
+            type = parameters.GetValue<string>("Type");
             nameD = parameters.GetValue<string>("MaterialDName");
             nameE = parameters.GetValue<string>("MaterialEName");
             nameF = parameters.GetValue<string>("MaterialFName");
@@ -66,7 +67,7 @@ namespace SCADA.ViewModels.Dialogs
             {
                 case "HSD410-2":
                     BackgroundImage = "/Views/Image/H4102.jpg";
-                    SetH4102Parameter(nameD, nameE, nameF, nameG, nameH, nameI, targetD, targetE, targetF, targetG, targetH, targetI);
+                    SetH4102Parameter(nameD, nameE, nameF, nameG, nameH, nameI, targetD, targetE, targetF, targetG, targetH, targetI, type);
                     Speak($"请扫描{nameD}");
                     break;
 
@@ -89,70 +90,76 @@ namespace SCADA.ViewModels.Dialogs
 
         private void DieCodeScanned(string die)
         {
-            switch (_scanSequence)
+            if (type == "All")
             {
-                case "D":
-                    if (!string.IsNullOrWhiteSpace(TargetE))
-                    {
-                        if (TargetD == die)
+                switch (_scanSequence)
+                {
+                    case "D":
+                        if (!string.IsNullOrWhiteSpace(TargetE))
                         {
-                            ScannedD = die;
-                            _scanSequence = "E";
-                            SetImageVis(0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                            Speak($"{nameD}扫描成功！请扫描{nameE}");
+                            if (TargetD == die)
+                            {
+                                ScannedD = die;
+                                _scanSequence = "E";
+                                SetImageVis(0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                                Speak($"{nameD}扫描成功！请扫描{nameE}");
+                            }
+                            else
+                            {
+                                ScannedD = die;
+                                SetImageVis(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+                                Speak($"{nameD}扫描错误！");
+                            }
                         }
-                        else
+                        break;
+
+                    case "E":
+                        break;
+
+                    case "F":
+                        if (!string.IsNullOrWhiteSpace(TargetF))
                         {
-                            ScannedD = die;
-                            SetImageVis(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
-                            Speak($"{nameD}扫描错误！");
+                            if (TargetF == die)
+                            {
+                                ScannedF = die;
+                                _scanSequence = "G";
+                                Speak($"{nameF}扫描成功！请扫描{nameG}");
+                                SetImageVis(0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                            }
+                            else
+                            {
+                                ScannedF = die;
+                                SetImageVis(0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
+                                Speak($"{nameF}扫描错误！");
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case "E":
-                    break;
+                    case "G":
+                        break;
 
-                case "F":
-                    if (!string.IsNullOrWhiteSpace(TargetF))
-                    {
-                        if (TargetF == die)
-                        {
-                            ScannedF = die;
-                            _scanSequence = "G";
-                            Speak($"{nameF}扫描成功！请扫描{nameG}");
-                            SetImageVis(0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                        }
-                        else
-                        {
-                            ScannedF = die;
-                            SetImageVis(0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0);
-                            Speak($"{nameF}扫描错误！");
-                        }
-                    }
-                    break;
+                    case "H":
+                        break;
 
-                case "G":
-                    break;
-
-                case "H":
-                    break;
-
-                case "I":
-                    break;
+                    case "I":
+                        break;
+                }
             }
         }
 
-        private void SetH4102Parameter(string nameD, string nameE, string nameF, string nameG, string nameH, string nameI, string targetD, string targetE, string targetF, string targetG, string targetH, string targetI)
+        private void SetH4102Parameter(string nameD, string nameE, string nameF, string nameG, string nameH, string nameI, string targetD, string targetE, string targetF, string targetG, string targetH, string targetI, string type)
         {
-            NameD = nameD;
             NameE = nameE;
-            NameF = nameF;
             NameG = nameG;
-            TargetD = targetD;
             TargetE = targetE;
-            TargetF = targetF;
             TargetG = targetG;
+            if (type == "All")
+            {
+                NameD = nameD;
+                TargetD = targetD;
+                NameF = nameF;
+                TargetF = targetF;
+            }
         }
 
         private async Task TerminalCodeScanned(string ter)
@@ -169,9 +176,18 @@ namespace SCADA.ViewModels.Dialogs
                         if (TargetE == await api.CallGetRemoteServerCodeAsync(ter))
                         {
                             ScannedE = ter;
-                            _scanSequence = "F";
-                            SetImageVis(0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                            Speak($"{nameE}扫描成功！请扫描{nameF}");
+                            if (type == "All")
+                            {
+                                _scanSequence = "F";
+                                SetImageVis(0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                                Speak($"{nameE}扫描成功！请扫描{nameF}");
+                            }
+                            else if (type == "Material")
+                            {
+                                _scanSequence = "G";
+                                SetImageVis(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                                Speak($"{nameE}扫描成功！请扫描{nameG}");
+                            }
                         }
                         else
                         {
@@ -210,7 +226,7 @@ namespace SCADA.ViewModels.Dialogs
                         else
                         {
                             ScannedG = ter;
-                            SetImageVis(0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0);
+                            SetImageVis(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0);
                             Speak($"{nameG}扫描错误！");
                         }
                     }
@@ -226,6 +242,7 @@ namespace SCADA.ViewModels.Dialogs
 
         #region 属性定义
 
+        private string type;
         private SpeechSynthesizer synth = new();
         private string nameD;
         private string nameE;

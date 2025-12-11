@@ -19,6 +19,7 @@ namespace SCADA.Manager
         public string COMPort { get; set; } = "COM1";
         public DateTime ShiftDate { get; set; } = DateTime.Now;
         public bool IsNeedDailyCheck { get; set; } = true;
+        public bool IsNeedScan { get; set; } = true;
 
         private static readonly object _lock = new();
         private static GlobalSettings _instance;

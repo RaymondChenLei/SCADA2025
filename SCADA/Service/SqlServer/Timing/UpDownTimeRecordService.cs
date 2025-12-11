@@ -39,5 +39,24 @@ namespace SCADA.Service.SqlServer.Timing
             };
             Client.Insertable(record).ExecuteCommand();
         }
+
+        public List<UpDownTimeRecord> GetRecords(string productNo, DateTime date)
+        {
+            return Client.Queryable<UpDownTimeRecord>()
+                .Where(x => x.TimingCatagory.Contains("停机"))
+                .Where(x => !x.TimingName.Contains("维"))
+                .Where(x => x.ProductNo == productNo)
+                .Where(x => x.ShiftDate == date)
+                .ToList();
+        }
+
+        public List<UpDownTimeRecord> GetMaintenanceRecords(string productNo, DateTime date)
+        {
+            return Client.Queryable<UpDownTimeRecord>()
+                .Where(x => x.TimingName.Contains("维"))
+                .Where(x => x.ProductNo == productNo)
+                .Where(x => x.ShiftDate == date)
+                .ToList();
+        }
     }
 }

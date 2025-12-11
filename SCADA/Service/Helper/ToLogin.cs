@@ -14,7 +14,7 @@ namespace SCADA.Service.Helper
     {
         public void Login(string cardID, out string userName, out string userID)
         {
-            var user = _userservice.GetUserbyCardID(cardID);
+            var user = _userservice.GetUserbyCardID(cardID.TrimStart('\u0002').TrimEnd('\r', '\n', '\u0003'));
             userName = user.UserName;
             userID = user.IdNo;
             var classsetting = _classsettingservice.GetSettingList();
@@ -37,7 +37,7 @@ namespace SCADA.Service.Helper
 
         public bool IfNeedDailyCheck()
         {
-            return _dailycheckrecordservice.IsCheckDone();
+            return !_dailycheckrecordservice.IsCheckDone();
         }
 
         #region 属性定义

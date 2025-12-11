@@ -10,5 +10,8 @@ namespace SCADA.Manager
     {
         public static readonly string MainWindowRegionName = "MainWindowRegion";
         public static readonly string HomeRegionName = "HomeRegion";
+        public static readonly string RecordsRegionName = "RecordsRegion";
+        public static readonly string ProcessRegionName = "ProcessRegion";
+        public static readonly string SettingRegionName = "SettingRegion";
     }
 }

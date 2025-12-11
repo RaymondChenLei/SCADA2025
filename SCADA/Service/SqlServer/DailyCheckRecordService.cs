@@ -42,5 +42,13 @@ namespace SCADA.Service.SqlServer
                 return false;
             }
         }
+
+        public List<DailyCheckRecord> GetRecords(string productNo, DateTime date)
+        {
+            return Client.Queryable<DailyCheckRecord>()
+                .Where(x => x.DeviceID == productNo)
+                .Where(x => x.ShiftDate == date)
+                .ToList();
+        }
     }
 }

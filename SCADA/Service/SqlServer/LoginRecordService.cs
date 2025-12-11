@@ -17,7 +17,7 @@ namespace SCADA.Service.SqlServer
 
         public void InsertRecord(LoginRecord loginrecord)
         {
-            Client.Insertable(loginrecord).ExecuteCommand();
+            Client.Storageable(loginrecord).ExecuteCommand();
         }
 
         public void UpdateLoutOut()
