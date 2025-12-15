@@ -360,26 +360,12 @@ namespace SCADA.ViewModels
             _regionManager.Regions[PrismManager.MainWindowRegionName].RequestNavigate(bar.NameSpace);
         }
 
-        private async Task PortRead()
+        private void PortRead()
         {
             try
             {
                 Data = new byte[8];
-                await Task.Run(() =>
-                {
-                    if (serialPort.BytesToRead >= 8)
-                    {
-                        try
-                        {
-                            serialPort.Read(Data, 0, 8);
-                        }
-                        catch (Exception ex)
-                        {
-                            Task.Factory.StartNew(() => Message.Enqueue(ex));
-                        }
-                    }
-                });
-
+                serialPort.Read(Data, 0, Data.Length);
                 if ((Data[0] + Data[1] + Data[2] + Data[3] + Data[4] + Data[5] + Data[6]) % 256 == Data[7] && Data[0] == 0x22)
                 {
                     Interlocked.Decrement(ref noReplyCounts);
@@ -504,10 +490,7 @@ namespace SCADA.ViewModels
         {
             try
             {
-                await Application.Current.Dispatcher.InvokeAsync(async () =>
-                {
-                    await Task.Run(() => PortRead()); // 在后台线程执行读取
-                });
+                PortRead();
             }
             catch (Exception ex)
             {
