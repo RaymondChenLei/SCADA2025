@@ -147,19 +147,26 @@ namespace SCADA.ViewModels
 
         private void CardReaderPortRead()
         {
-            string receivedData = _cardreaderPort.ReadExisting();
-            ToLogin login = new();
-            login.Login(receivedData, out string UserName, out string UserID);
-            GlobalSettings.Instance.CurrentUserId = UserID;
-            GlobalSettings.Instance.CurrentUserName = UserName;
-            Name = UserName;
-            ID = UserID;
-            Task.Factory.StartNew(() => Message.Enqueue("登录成功！"));
-            GlobalSettings.Instance.IsNeedDailyCheck = login.IfNeedDailyCheck();
-            if (GlobalSettings.Instance.IsNeedDailyCheck)
+            try
             {
-                Task.Factory.StartNew(() => Message.Enqueue("请完成点检！"));
-                //还要扫描
+                string receivedData = _cardreaderPort.ReadExisting();
+                ToLogin login = new();
+                login.Login(receivedData, out string UserName, out string UserID);
+                GlobalSettings.Instance.CurrentUserId = UserID;
+                GlobalSettings.Instance.CurrentUserName = UserName;
+                Name = UserName;
+                ID = UserID;
+                Task.Factory.StartNew(() => Message.Enqueue("登录成功！"));
+                GlobalSettings.Instance.IsNeedDailyCheck = login.IfNeedDailyCheck();
+                if (GlobalSettings.Instance.IsNeedDailyCheck)
+                {
+                    Task.Factory.StartNew(() => Message.Enqueue("请完成点检！"));
+                    //还要扫描
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
             }
         }
 
@@ -288,6 +295,7 @@ namespace SCADA.ViewModels
             {
                 GlobalSettings.Instance.ProductNo = appsetting.ProductNo;
                 GlobalSettings.Instance.COMPort = appsetting.RelayModulePort;
+                GlobalSettings.Instance.ScanDialog = appsetting.ScanDialog;
                 _machineStatusService.UpdateStatus(appsetting.ProductNo);
             }
             catch (Exception ex)
@@ -348,9 +356,16 @@ namespace SCADA.ViewModels
 
         private void InitTiming()
         {
-            TimingHelper timing = new();
-            timing.TimingSetting(0, out string timingcatagory);
-            TimingCatagory = timingcatagory;
+            try
+            {
+                TimingHelper timing = new();
+                timing.TimingSetting(0, out string timingcatagory);
+                TimingCatagory = timingcatagory;
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void Navigate(MenuBar bar)
@@ -380,7 +395,7 @@ namespace SCADA.ViewModels
             catch (Exception ex)
             {
                 Data = new byte[8];
-                Message.Enqueue($"数据读取错误: {ex.Message}");
+                Task.Factory.StartNew(() => Message.Enqueue($"数据读取错误: {ex.Message}"));
             }
         }
 
@@ -494,7 +509,7 @@ namespace SCADA.ViewModels
             }
             catch (Exception ex)
             {
-                Message.Enqueue($"串口读取错误: {ex.Message}");
+                Task.Factory.StartNew(() => Message.Enqueue($"串口读取错误: {ex.Message}"));
             }
         }
 
@@ -547,10 +562,17 @@ namespace SCADA.ViewModels
 
         private void SynchronizeData()
         {
-            var sqldata = _SQLServerstopservice.GetAllData();
-            var sqlkabban = _sqlserverkanbanService.GetKanban(GlobalSettings.Instance.ProductNo);
-            _stopcatalogservice.UpdataAllData(sqldata);
-            _sqlitekanbanService.UpdataAllKanban(sqlkabban);
+            try
+            {
+                var sqldata = _SQLServerstopservice.GetAllData();
+                var sqlkabban = _sqlserverkanbanService.GetKanban(GlobalSettings.Instance.ProductNo);
+                _stopcatalogservice.UpdataAllData(sqldata);
+                _sqlitekanbanService.UpdataAllKanban(sqlkabban);
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -594,7 +616,11 @@ namespace SCADA.ViewModels
                 + Environment.NewLine +
                 "更新说明："
                 + Environment.NewLine +
-                "1. 完善了计时功能；";
+                "1. 完善了计时功能；"
+                + Environment.NewLine +
+                "版本号：1.2.25.8"
+                + Environment.NewLine +
+                "1. 解决了实体串口的通讯问题；";
             MessageBox.Show(message, "更新公告", MessageBoxButton.OK);
         }
 

@@ -26,9 +26,9 @@ namespace SCADA.ViewModels.HomePages
             _countstatusservice = new(SQLiteService.Instance.Db);
             _kanbanstatusservice = new(SQLiteService.Instance.Db);
             _sqliteKanbanservice = new(SQLiteService.Instance.Db);
-            _inspectionservice = new(SqlService.Instance.Client);
+            _inspectionservice = new(SQLiteService.Instance.Db);
             _machinestatusservice = new(SQLiteService.Instance.Db);
-            _KanbanCountService = new(SqlService.Instance.Client);
+            _KanbanCountService = new(SQLiteService.Instance.Db);
             eventAggregator.GetEvent<TextUpdatedEvent>().Subscribe(text => TargetValue = text + initData.TotalCount);
             eventAggregator.GetEvent<KBChangeEvent>().Subscribe(kb => ChangeKB(kb, true));
             AddNG = new(AddNGExecution);
@@ -86,16 +86,30 @@ namespace SCADA.ViewModels.HomePages
 
         private void AddNGExecution()
         {
-            NGQty += 1;
-            UpdateQty();
-            ButtonEnable();
+            try
+            {
+                NGQty += 1;
+                UpdateQty();
+                ButtonEnable();
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void AddSampleExecution()
         {
-            SampleQty += 1;
-            UpdateQty();
-            ButtonEnable();
+            try
+            {
+                SampleQty += 1;
+                UpdateQty();
+                ButtonEnable();
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void ButtonEnable()
@@ -130,63 +144,77 @@ namespace SCADA.ViewModels.HomePages
 
         private void ChangeKB(string kanban, bool isScan)
         {
-            if (string.IsNullOrWhiteSpace(kanban))
+            try
             {
-                return;
-            }
-            else if (_kanbanstatusservice.GetLastKB().KB == kanban)
-            {
-                return;
-            }
-            else
-            {
-                if (isScan)
+                if (string.IsNullOrWhiteSpace(kanban))
                 {
-                    MessageBoxResult result = MessageBox.Show
-                    (
-                    $"确定切换为看板{kanban}吗？",
-                    "切换看板确认",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question
-                    );
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        ChangingKB(kanban);
-                    }
-                    else
-                    {
-                        result = MessageBoxResult.No;
-                    }
+                    return;
+                }
+                else if (_kanbanstatusservice.GetLastKB().KB == kanban)
+                {
+                    return;
                 }
                 else
                 {
-                    ChangingKB(kanban);
+                    if (isScan)
+                    {
+                        MessageBoxResult result = MessageBox.Show
+                        (
+                        $"确定切换为看板{kanban}吗？",
+                        "切换看板确认",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question
+                        );
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            ChangingKB(kanban);
+                        }
+                        else
+                        {
+                            result = MessageBoxResult.No;
+                        }
+                    }
+                    else
+                    {
+                        ChangingKB(kanban);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
             }
         }
 
         private void ChangingKB(string KB)
         {
-            if (TargetValue > 0)
+            try
             {
-                SaveLastKB();
+                if (TargetValue > 0)
+                {
+                    SaveLastKB();
+                }
+                CounterZeroize(KB);
+                GlobalSettings.Instance.KB = KB;
+                Kanban = KB;
+                var KBinfo = _sqliteKanbanservice.GetInfobyKB(KB);
+                KanbanTitleA = "看板号：";
+                KanbanTitleB = "零件号：";
+                KanbanTitleC = "项目名：";
+                KanbanInfoA = KBinfo.KanbanNo;
+                KanbanInfoB = KBinfo.KanbanName;
+                KanbanInfoC = KBinfo.ProjectName;
+                var kbjson = JsonConvert.DeserializeObject<List<KBJson>>(KBinfo.JsonContent);
+                TimingHelper timing = new();
+                timing.TimingSetting(5, out string timingcatagory);
+                if (GlobalSettings.Instance.ProductNo.Contains("HSD410"))
+                {
+                    FreshHSD410KanbanInfo(KBinfo, kbjson);
+                }
             }
-            CounterZeroize(KB);
-            GlobalSettings.Instance.KB = KB;
-            Kanban = KB;
-            var KBinfo = _sqliteKanbanservice.GetInfobyKB(KB);
-            KanbanTitleA = "看板号：";
-            KanbanTitleB = "零件号：";
-            KanbanTitleC = "项目名：";
-            KanbanInfoA = KBinfo.KanbanNo;
-            KanbanInfoB = KBinfo.KanbanName;
-            KanbanInfoC = KBinfo.ProjectName;
-            var kbjson = JsonConvert.DeserializeObject<List<KBJson>>(KBinfo.JsonContent);
-            TimingHelper timing = new();
-            timing.TimingSetting(5, out string timingcatagory);
-            if (GlobalSettings.Instance.ProductNo.Contains("HSD410"))
+            catch (Exception ex)
             {
-                FreshHSD410KanbanInfo(KBinfo, kbjson);
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
             }
         }
 
@@ -205,103 +233,114 @@ namespace SCADA.ViewModels.HomePages
 
         private void CounterZeroize(string KB)
         {
-            _eventAggregator.GetEvent<CounterZeroizeEvent>().Publish(0);
-            GoodQty = 0;
-            NGQty = 0;
-            SampleQty = 0;
-            TargetValue = 0;
-            CountStatus qty = new()
+            try
             {
-                GoodCount = 0,
-                NGCount = 0,
-                SampleCount = 0,
-                TotalCount = 0,
-                KB = KB
-            };
-            _countstatusservice.UpdateStatus(qty);
+                _eventAggregator.GetEvent<CounterZeroizeEvent>().Publish(0);
+                GoodQty = 0;
+                NGQty = 0;
+                SampleQty = 0;
+                TargetValue = 0;
+                CountStatus qty = new()
+                {
+                    GoodCount = 0,
+                    NGCount = 0,
+                    SampleCount = 0,
+                    TotalCount = 0,
+                    KB = KB
+                };
+                _countstatusservice.UpdateStatus(qty);
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void FreshHSD410KanbanInfo(HSDKanban kBinfo, List<KBJson> kbjson)
         {
-            KanbanTitleD = "中心导体1模具：";
-            KanbanTitleE = "中心导体1端子：";
-            KanbanTitleF = "中心导体2模具：";
-            KanbanTitleG = "中心导体2端子：";
-            KanbanInfoD = kBinfo.ACenterTerminalDieNo;
-            KanbanInfoE = kBinfo.ACenterTerminalNo;
-            KanbanInfoF = kBinfo.BCenterTerminalDieNo;
-            KanbanInfoG = kBinfo.BCenterTerminalNo;
-            KanbanStatus newKB = new()
+            try
             {
-                KB = kBinfo.KanbanNo,
-                MaterialD = KanbanInfoD,
-                MaterialE = KanbanInfoE,
-                MaterialF = KanbanInfoF,
-                MaterialG = KanbanInfoG,
-                Shift = GlobalSettings.Instance.Shift,
-                ShiftDate = GlobalSettings.Instance.ShiftDate
-            };
-            _kanbanstatusservice.UpdatePartsKBStatus(newKB);
-            if (DieParasOrange is not null)
-            {
-                DieParasOrange.Clear();
-            }
-            if (DieParasBlue is not null)
-            {
-                DieParasBlue.Clear();
-            }
-            if (DieParasBrown is not null)
-            {
-                DieParasBrown.Clear();
-            }
-            if (DieParasGreen is not null)
-            {
-                DieParasGreen.Clear();
-            }
-            foreach (var item in kbjson)
-            {
-                StringDouble value = new()
+                KanbanTitleD = "中心导体1模具：";
+                KanbanTitleE = "中心导体1端子：";
+                KanbanTitleF = "中心导体2模具：";
+                KanbanTitleG = "中心导体2端子：";
+                KanbanInfoD = kBinfo.ACenterTerminalDieNo;
+                KanbanInfoE = kBinfo.ACenterTerminalNo;
+                KanbanInfoF = kBinfo.BCenterTerminalDieNo;
+                KanbanInfoG = kBinfo.BCenterTerminalNo;
+                if (GlobalSettings.Instance.ScanDialog)
                 {
-                    Title = item.Name,
-                    Value1 = item.MinValue,
-                    Value2 = item.MaxValue
-                };
-                DieParasOrange.Add(value);
-            }
-            foreach (var item in kbjson)
-            {
-                StringDouble value = new()
-                {
-                    Title = item.Name,
-                    Value1 = item.MinValue,
-                    Value2 = item.MaxValue
-                };
-                DieParasBlue.Add(value);
-            }
-            foreach (var item in kbjson)
-            {
-                StringDouble value = new()
-                {
-                    Title = item.Name,
-                    Value1 = item.MinValue,
-                    Value2 = item.MaxValue
-                };
-                DieParasBrown.Add(value);
-            }
-            foreach (var item in kbjson)
-            {
-                StringDouble value = new()
-                {
-                    Title = item.Name,
-                    Value1 = item.MinValue,
-                    Value2 = item.MaxValue
-                };
-                DieParasGreen.Add(value);
-            }
-            ChangeOver CO = new();
-            if (CO.IfNeedScan(newKB))
-            {
-                DialogParameters p = new()
+                    KanbanStatus newKB = new()
+                    {
+                        KB = kBinfo.KanbanNo,
+                        MaterialD = KanbanInfoD,
+                        MaterialE = KanbanInfoE,
+                        MaterialF = KanbanInfoF,
+                        MaterialG = KanbanInfoG,
+                        Shift = GlobalSettings.Instance.Shift,
+                        ShiftDate = GlobalSettings.Instance.ShiftDate
+                    };
+                    _kanbanstatusservice.UpdatePartsKBStatus(newKB);
+                    if (DieParasOrange is not null)
+                    {
+                        DieParasOrange.Clear();
+                    }
+                    if (DieParasBlue is not null)
+                    {
+                        DieParasBlue.Clear();
+                    }
+                    if (DieParasBrown is not null)
+                    {
+                        DieParasBrown.Clear();
+                    }
+                    if (DieParasGreen is not null)
+                    {
+                        DieParasGreen.Clear();
+                    }
+                    foreach (var item in kbjson)
+                    {
+                        StringDouble value = new()
+                        {
+                            Title = item.Name,
+                            Value1 = item.MinValue,
+                            Value2 = item.MaxValue
+                        };
+                        DieParasOrange.Add(value);
+                    }
+                    foreach (var item in kbjson)
+                    {
+                        StringDouble value = new()
+                        {
+                            Title = item.Name,
+                            Value1 = item.MinValue,
+                            Value2 = item.MaxValue
+                        };
+                        DieParasBlue.Add(value);
+                    }
+                    foreach (var item in kbjson)
+                    {
+                        StringDouble value = new()
+                        {
+                            Title = item.Name,
+                            Value1 = item.MinValue,
+                            Value2 = item.MaxValue
+                        };
+                        DieParasBrown.Add(value);
+                    }
+                    foreach (var item in kbjson)
+                    {
+                        StringDouble value = new()
+                        {
+                            Title = item.Name,
+                            Value1 = item.MinValue,
+                            Value2 = item.MaxValue
+                        };
+                        DieParasGreen.Add(value);
+                    }
+                    ChangeOver CO = new();
+                    if (CO.IfNeedScan(newKB))
+                    {
+                        DialogParameters p = new()
                 {
                     { "Type","All"},
                     { "MaterialDName","中心导体1模具" },
@@ -317,23 +356,31 @@ namespace SCADA.ViewModels.HomePages
                     { "MaterialHTarget","" },
                     { "MaterialITarget","" },
                 };
-                _dialogHostService.ShowDialog("ScanDialog", p);
+                        _dialogHostService.ShowDialog("ScanDialog", p);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
             }
         }
 
         private void InitQty()
         {
-            var kb = _kanbanstatusservice.GetLastKB().KB;
-            ChangeKB(kb, _kanbanstatusservice.IfKBScanDone());
-            initData = _countstatusservice.GetData();
-            TargetValue = initData.TotalCount;
-            NGQty = initData.NGCount;
-            SampleQty = initData.SampleCount;
-            GoodQty = initData.GoodCount;
-            Kanban = _kanbanstatusservice.GetLastKB().KB;
-            if (!_kanbanstatusservice.IfKBScanDone())
+            try
             {
-                DialogParameters p = new()
+                var kb = _kanbanstatusservice.GetLastKB().KB;
+                ChangeKB(kb, _kanbanstatusservice.IfKBScanDone());
+                initData = _countstatusservice.GetData();
+                TargetValue = initData.TotalCount;
+                NGQty = initData.NGCount;
+                SampleQty = initData.SampleCount;
+                GoodQty = initData.GoodCount;
+                Kanban = _kanbanstatusservice.GetLastKB().KB;
+                if (!_kanbanstatusservice.IfKBScanDone())
+                {
+                    DialogParameters p = new()
                 {
                     { "Type","All"},
                     { "MaterialDName","中心导体1模具" },
@@ -349,15 +396,27 @@ namespace SCADA.ViewModels.HomePages
                     { "MaterialHTarget","" },
                     { "MaterialITarget","" },
                 };
-                _dialogHostService.ShowDialog("ScanDialog", p);
+                    _dialogHostService.ShowDialog("ScanDialog", p);
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
             }
         }
 
         private void SampleExccution()
         {
-            IsSaveBtnEnable = true;
-            TimingHelper timing = new();
-            timing.TimingSetting(12, out string timingcatagory);
+            try
+            {
+                IsSaveBtnEnable = true;
+                TimingHelper timing = new();
+                timing.TimingSetting(12, out string timingcatagory);
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void SaveLastKB()
@@ -389,207 +448,235 @@ namespace SCADA.ViewModels.HomePages
 
         private void SaveValue()
         {
-            List<StringDouble> listOra = [];
-            List<StringDouble> listBlu = [];
-            List<StringDouble> listBro = [];
-            List<StringDouble> listGre = [];
-            foreach (var item in DieParasOrange)
+            try
             {
-                StringDouble value = new()
+                List<StringDouble> listOra = [];
+                List<StringDouble> listBlu = [];
+                List<StringDouble> listBro = [];
+                List<StringDouble> listGre = [];
+                foreach (var item in DieParasOrange)
                 {
-                    ActualColor = item.ActualColor,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                listOra.Add(value);
-            }
-            DieParasOrange.Clear();
-            foreach (StringDouble item in listOra)
-            {
-                StringDouble value = new()
+                    StringDouble value = new()
+                    {
+                        ActualColor = item.ActualColor,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    listOra.Add(value);
+                }
+                DieParasOrange.Clear();
+                foreach (StringDouble item in listOra)
                 {
-                    ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                DieParasOrange.Add(value);
-            }
+                    StringDouble value = new()
+                    {
+                        ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    DieParasOrange.Add(value);
+                }
 
-            foreach (var item in DieParasBlue)
-            {
-                StringDouble value = new()
+                foreach (var item in DieParasBlue)
                 {
-                    ActualColor = item.ActualColor,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                listBlu.Add(value);
-            }
-            DieParasBlue.Clear();
-            foreach (StringDouble item in listBlu)
-            {
-                StringDouble value = new()
+                    StringDouble value = new()
+                    {
+                        ActualColor = item.ActualColor,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    listBlu.Add(value);
+                }
+                DieParasBlue.Clear();
+                foreach (StringDouble item in listBlu)
                 {
-                    ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                DieParasBlue.Add(value);
-            }
+                    StringDouble value = new()
+                    {
+                        ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    DieParasBlue.Add(value);
+                }
 
-            foreach (var item in DieParasBrown)
-            {
-                StringDouble value = new()
+                foreach (var item in DieParasBrown)
                 {
-                    ActualColor = item.ActualColor,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                listBro.Add(value);
-            }
-            DieParasBrown.Clear();
-            foreach (StringDouble item in listBro)
-            {
-                StringDouble value = new()
+                    StringDouble value = new()
+                    {
+                        ActualColor = item.ActualColor,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    listBro.Add(value);
+                }
+                DieParasBrown.Clear();
+                foreach (StringDouble item in listBro)
                 {
-                    ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                DieParasBrown.Add(value);
-            }
+                    StringDouble value = new()
+                    {
+                        ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    DieParasBrown.Add(value);
+                }
 
-            foreach (var item in DieParasGreen)
-            {
-                StringDouble value = new()
+                foreach (var item in DieParasGreen)
                 {
-                    ActualColor = item.ActualColor,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                listGre.Add(value);
-            }
-            DieParasGreen.Clear();
-            foreach (StringDouble item in listGre)
-            {
-                StringDouble value = new()
+                    StringDouble value = new()
+                    {
+                        ActualColor = item.ActualColor,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    listGre.Add(value);
+                }
+                DieParasGreen.Clear();
+                foreach (StringDouble item in listGre)
                 {
-                    ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
-                    ActualValue = item.ActualValue,
-                    Title = item.Title,
-                    Value1 = item.Value1,
-                    Value2 = item.Value2
-                };
-                DieParasGreen.Add(value);
-            }
-            if (!CheckValue(listGre))
-            {
-                Task.Factory.StartNew(() => Message.Enqueue("绿色样件不合格！请重新测量或制作样件！"));
-            }
-            else if (!CheckValue(listBro))
-            {
-                Task.Factory.StartNew(() => Message.Enqueue("粽色样件不合格！请重新测量或制作样件！"));
-            }
-            else if (!CheckValue(listBlu))
-            {
-                Task.Factory.StartNew(() => Message.Enqueue("蓝色样件不合格！请重新测量或制作样件！"));
-            }
-            else if (!CheckValue(listOra))
-            {
-                Task.Factory.StartNew(() => Message.Enqueue("橙色样件不合格！请重新测量或制作样件！"));
-            }
-            else
-            {
-                //中心导体1=>橙色，2=>绿色，3=>蓝色，4=>粽色
-                InspectionHSDJson json = new()
+                    StringDouble value = new()
+                    {
+                        ActualColor = (item.ActualValue >= item.Value1 && item.ActualValue <= item.Value2) ? Brushes.LightGreen : Brushes.Red,
+                        ActualValue = item.ActualValue,
+                        Title = item.Title,
+                        Value1 = item.Value1,
+                        Value2 = item.Value2
+                    };
+                    DieParasGreen.Add(value);
+                }
+                if (!CheckValue(listGre))
                 {
-                    中心导体1剥皮长度 = Math.Round(listOra.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
-                    中心导体1压接高度 = Math.Round(listOra.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
-                    中心导体1压接宽度 = Math.Round(listOra.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
-                    中心导体1拉力 = Math.Round(listOra.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString(),
-                    中心导体2剥皮长度 = Math.Round(listGre.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
-                    中心导体2压接高度 = Math.Round(listGre.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
-                    中心导体2压接宽度 = Math.Round(listGre.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
-                    中心导体2拉力 = Math.Round(listGre.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString(),
-                    中心导体3剥皮长度 = Math.Round(listBlu.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
-                    中心导体3压接高度 = Math.Round(listBlu.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
-                    中心导体3压接宽度 = Math.Round(listBlu.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
-                    中心导体3拉力 = Math.Round(listBlu.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString(),
-                    中心导体4剥皮长度 = Math.Round(listBro.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
-                    中心导体4压接高度 = Math.Round(listBro.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
-                    中心导体4压接宽度 = Math.Round(listBro.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
-                    中心导体4拉力 = Math.Round(listBro.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString()
-                };
-                var test = Type;
-                var generator = new IdGenerator(0);
-                Inspection record = new()
+                    Task.Factory.StartNew(() => Message.Enqueue("绿色样件不合格！请重新测量或制作样件！"));
+                }
+                else if (!CheckValue(listBro))
                 {
-                    ID = generator.CreateId(),
-                    DeviceID = GlobalSettings.Instance.ProductNo,
-                    CheckType = Type,
-                    JsonContent = JsonConvert.SerializeObject(json),
-                    CreateUserID = GlobalSettings.Instance.CurrentUserId,
-                    KanbanNo = GlobalSettings.Instance.KB,
-                    StartTime = _machinestatusservice.GetStartTime(),
-                    EndTime = DateTime.Now,
-                    CreateTime = DateTime.Now,
-                    ShiftDate = GlobalSettings.Instance.ShiftDate,
-                    ScannerRecordID = 0,
-                    IsGood = IsVisualOK,
-                    WqGood = IsBendingOK,
-                    DieNo1 = KanbanInfoD,
-                    DieNo2 = KanbanInfoF,
-                    DieNo3 = ""
-                };
-                _inspectionservice.InsertNewRecord(record);
-                Task.Factory.StartNew(() => Message.Enqueue("保存成功！"));
-                TimingHelper timing = new();
-                timing.TimingSetting(5, out string timingcatagory);
-                IsSaveBtnEnable = false;
+                    Task.Factory.StartNew(() => Message.Enqueue("粽色样件不合格！请重新测量或制作样件！"));
+                }
+                else if (!CheckValue(listBlu))
+                {
+                    Task.Factory.StartNew(() => Message.Enqueue("蓝色样件不合格！请重新测量或制作样件！"));
+                }
+                else if (!CheckValue(listOra))
+                {
+                    Task.Factory.StartNew(() => Message.Enqueue("橙色样件不合格！请重新测量或制作样件！"));
+                }
+                else
+                {
+                    //中心导体1=>橙色，2=>绿色，3=>蓝色，4=>粽色
+                    InspectionHSDJson json = new()
+                    {
+                        中心导体1剥皮长度 = Math.Round(listOra.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
+                        中心导体1压接高度 = Math.Round(listOra.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
+                        中心导体1压接宽度 = Math.Round(listOra.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
+                        中心导体1拉力 = Math.Round(listOra.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString(),
+                        中心导体2剥皮长度 = Math.Round(listGre.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
+                        中心导体2压接高度 = Math.Round(listGre.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
+                        中心导体2压接宽度 = Math.Round(listGre.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
+                        中心导体2拉力 = Math.Round(listGre.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString(),
+                        中心导体3剥皮长度 = Math.Round(listBlu.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
+                        中心导体3压接高度 = Math.Round(listBlu.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
+                        中心导体3压接宽度 = Math.Round(listBlu.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
+                        中心导体3拉力 = Math.Round(listBlu.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString(),
+                        中心导体4剥皮长度 = Math.Round(listBro.Where(x => x.Title == "剥皮长度").First().ActualValue, 3).ToString(),
+                        中心导体4压接高度 = Math.Round(listBro.Where(x => x.Title == "压接高度").First().ActualValue, 3).ToString(),
+                        中心导体4压接宽度 = Math.Round(listBro.Where(x => x.Title == "压接宽度").First().ActualValue, 3).ToString(),
+                        中心导体4拉力 = Math.Round(listBro.Where(x => x.Title == "拉力").First().ActualValue, 3).ToString()
+                    };
+                    var test = Type;
+                    var generator = new IdGenerator(0);
+                    Inspection record = new()
+                    {
+                        ID = generator.CreateId(),
+                        DeviceID = GlobalSettings.Instance.ProductNo,
+                        CheckType = Type,
+                        JsonContent = JsonConvert.SerializeObject(json),
+                        CreateUserID = GlobalSettings.Instance.CurrentUserId,
+                        KanbanNo = GlobalSettings.Instance.KB,
+                        StartTime = _machinestatusservice.GetStartTime(),
+                        EndTime = DateTime.Now,
+                        CreateTime = DateTime.Now,
+                        ShiftDate = GlobalSettings.Instance.ShiftDate,
+                        ScannerRecordID = 0,
+                        IsGood = IsVisualOK,
+                        WqGood = IsBendingOK,
+                        DieNo1 = KanbanInfoD,
+                        DieNo2 = KanbanInfoF,
+                        DieNo3 = ""
+                    };
+                    _inspectionservice.InsertNewRecord(record);
+                    Task.Factory.StartNew(() => Message.Enqueue("保存成功！"));
+                    TimingHelper timing = new();
+                    timing.TimingSetting(5, out string timingcatagory);
+                    IsSaveBtnEnable = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
             }
         }
 
         private void SubtractNGExecution()
         {
-            NGQty -= 1;
-            UpdateQty();
-            ButtonEnable();
+            try
+            {
+                NGQty -= 1;
+                UpdateQty();
+                ButtonEnable();
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void SubtractSampleExecution()
         {
-            SampleQty -= 1;
-            UpdateQty();
-            ButtonEnable();
+            try
+            {
+                SampleQty -= 1;
+                UpdateQty();
+                ButtonEnable();
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         private void UpdateQty()
         {
-            GoodQty = TargetValue - NGQty - SampleQty;
-            CountStatus count = new()
+            try
             {
-                KB = Kanban,
-                TotalCount = TargetValue,
-                GoodCount = GoodQty,
-                NGCount = NGQty,
-                SampleCount = SampleQty
-            };
-            _countstatusservice.UpdateStatus(count);
-            ButtonEnable();
+                GoodQty = TargetValue - NGQty - SampleQty;
+                CountStatus count = new()
+                {
+                    KB = Kanban,
+                    TotalCount = TargetValue,
+                    GoodCount = GoodQty,
+                    NGCount = NGQty,
+                    SampleCount = SampleQty
+                };
+                _countstatusservice.UpdateStatus(count);
+                ButtonEnable();
+            }
+            catch (Exception ex)
+            {
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+            }
         }
 
         #region 属性定义

@@ -23,9 +23,9 @@ namespace SCADA.ViewModels.HomePages
     {
         public DailyCheckPageViewModel()
         {
-            _dailycheckcontentservice = new(SqlService.Instance.Client);
-            _dailycheckrecordservice = new(SqlService.Instance.Client);
-            _dailycheckreviewservice = new(SqlService.Instance.Client);
+            _dailycheckcontentservice = new(SQLiteService.Instance.Db);
+            _dailycheckrecordservice = new(SQLiteService.Instance.Db);
+            _dailycheckreviewservice = new(SQLiteService.Instance.Db);
             Message = new();
             ContentList = [];
             contents = [];

@@ -11,5 +11,6 @@ namespace SCADA.Models
         public string MachineType { get; set; } = "压接机";
         public string ProductNo { get; set; } = "压接机1#";
         public string RelayModulePort { get; set; } = "COM1";
+        public bool ScanDialog { get; set; } = true;
     }
 }

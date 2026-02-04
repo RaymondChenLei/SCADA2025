@@ -17,6 +17,7 @@ namespace SCADA.Manager
         public string Shift { get; set; } = "A班";
         public string KB { get; set; } = "";
         public string COMPort { get; set; } = "COM1";
+        public bool ScanDialog { get; set; } = true;
         public DateTime ShiftDate { get; set; } = DateTime.Now;
         public bool IsNeedDailyCheck { get; set; } = true;
         public bool IsNeedScan { get; set; } = true;

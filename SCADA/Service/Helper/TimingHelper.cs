@@ -29,7 +29,7 @@ namespace SCADA.Service.Helper
 
         #region 属性定义
 
-        private UpDownTimeRecordService _upowntimerecordservice = new(SqlService.Instance.Client);
+        private UpDownTimeRecordService _upowntimerecordservice = new(SQLiteService.Instance.Db);
         private MachineStatusService _machinestatusservice = new(SQLiteService.Instance.Db);
         private StopCatelogService _stopcatelogservice = new(SQLiteService.Instance.Db);
 
