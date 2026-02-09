@@ -29,6 +29,7 @@ namespace SCADA.ViewModels.HomePages
             _inspectionservice = new(SQLiteService.Instance.Db);
             _machinestatusservice = new(SQLiteService.Instance.Db);
             _KanbanCountService = new(SQLiteService.Instance.Db);
+            _equipmentcatalogservice = new(SQLiteService.Instance.Db);
             eventAggregator.GetEvent<TextUpdatedEvent>().Subscribe(text => TargetValue = text + initData.TotalCount);
             eventAggregator.GetEvent<KBChangeEvent>().Subscribe(kb => ChangeKB(kb, true));
             AddNG = new(AddNGExecution);
@@ -51,16 +52,18 @@ namespace SCADA.ViewModels.HomePages
 
         private void ChangingMaterial()
         {
-            MessageBoxResult result = MessageBox.Show
+            try
+            {
+                MessageBoxResult result = MessageBox.Show
                     (
                     $"确定要更换原材料吗？",
                     "更换原材料确认",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question
                     );
-            if (result == MessageBoxResult.Yes)
-            {
-                DialogParameters p = new()
+                if (result == MessageBoxResult.Yes)
+                {
+                    DialogParameters p = new()
                 {
                     { "Type","Material"},
                     { "MaterialDName","中心导体1模具" },
@@ -76,11 +79,17 @@ namespace SCADA.ViewModels.HomePages
                     { "MaterialHTarget","" },
                     { "MaterialITarget","" },
                 };
-                _dialogHostService.ShowDialog("ScanDialog", p);
+                    _dialogHostService.ShowDialog("ScanDialog", p);
+                }
+                else
+                {
+                    result = MessageBoxResult.No;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                result = MessageBoxResult.No;
+                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -95,6 +104,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -109,6 +119,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -183,6 +194,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -215,6 +227,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -253,6 +266,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -363,6 +377,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -402,6 +417,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -416,6 +432,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -443,6 +460,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => { Message.Enqueue(ex.Message); });
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -626,6 +644,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -640,6 +659,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -654,6 +674,7 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -676,11 +697,13 @@ namespace SCADA.ViewModels.HomePages
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
         #region 属性定义
 
+        private EquipmentCatalogService _equipmentcatalogservice;
         private readonly IDialogHostService _dialogHostService;
         private readonly IEventAggregator _eventAggregator;
         private CountStatusService _countstatusservice;

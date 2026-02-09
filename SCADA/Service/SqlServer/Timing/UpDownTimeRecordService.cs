@@ -37,7 +37,7 @@ namespace SCADA.Service.SqlServer.Timing
                 KanbanNo = GlobalSettings.Instance.KB,
                 ShiftDate = GlobalSettings.Instance.ShiftDate
             };
-            Client.Insertable(record).ExecuteCommand();
+            Client.Insertable(record).ExecuteReturnSnowflakeId();
         }
 
         public List<UpDownTimeRecord> GetRecords(string productNo, DateTime date)

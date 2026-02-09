@@ -8,7 +8,7 @@ namespace SCADA.Models.RecordsDataGrid
 {
     public class DownTimeDataGrid
     {
-        public int 序号 { get; set; }
+        public long 序号 { get; set; }
         public string 设备 { get; set; }
         public string 设备类别 { get; set; }
         public string 停机分类 { get; set; }

@@ -46,6 +46,7 @@ namespace SCADA.Service.Helper
         private LoginRecordService _loginRecordService = new(SqlService.Instance.Client);
         private UserService _userservice = new(SqlService.Instance.Client);
         private ClassSettingService _classsettingservice = new(SqlService.Instance.Client);
+        private EquipmentCatalogService _equipmentcatalogservice = new(SQLiteService.Instance.Db);
 
         #endregion 属性定义
     }

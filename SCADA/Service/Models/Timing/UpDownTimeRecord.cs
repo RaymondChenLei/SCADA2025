@@ -10,7 +10,9 @@ namespace SCADA.Service.Models.Timing
     [SugarTable("UpDownTimeRecord")]
     public class UpDownTimeRecord
     {
-        public int ID { get; set; }
+        [SugarColumn(IsPrimaryKey = true)]
+        public long ID { get; set; }
+
         public string ProductNo { get; set; }
         public string MachineName { get; set; }
         public string TimingCatagory { get; set; }

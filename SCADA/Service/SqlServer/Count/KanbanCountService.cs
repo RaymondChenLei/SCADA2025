@@ -12,7 +12,7 @@ namespace SCADA.Service.SqlServer.Count
     {
         public KanbanCountService(ISqlSugarClient client) : base(client)
         {
-            //SetTable<KanbanCount>("KanbanCount");
+            SetTable<KanbanCount>("KanbanCount");
         }
 
         public void InsertKanban(KanbanCount record)

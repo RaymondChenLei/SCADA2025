@@ -167,6 +167,7 @@ namespace SCADA.ViewModels
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex);
             }
         }
 
@@ -301,6 +302,7 @@ namespace SCADA.ViewModels
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex);
             }
         }
 
@@ -335,6 +337,7 @@ namespace SCADA.ViewModels
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex);
             }
         }
 
@@ -365,6 +368,7 @@ namespace SCADA.ViewModels
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex);
             }
         }
 
@@ -396,6 +400,7 @@ namespace SCADA.ViewModels
             {
                 Data = new byte[8];
                 Task.Factory.StartNew(() => Message.Enqueue($"数据读取错误: {ex.Message}"));
+                NLogHelper.NLogProcessHelperIns.Logger.Error($"数据读取错误: {ex.Message}");
             }
         }
 
@@ -495,7 +500,8 @@ namespace SCADA.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        Message.Enqueue($"发送失败: {ex.Message}");
+                        Task.Factory.StartNew(() => Message.Enqueue($"发送失败: {ex.Message}"));
+                        NLogHelper.NLogProcessHelperIns.Logger.Error($"发送失败: {ex.Message}");
                     }
                 }
             });
@@ -510,6 +516,7 @@ namespace SCADA.ViewModels
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue($"串口读取错误: {ex.Message}"));
+                NLogHelper.NLogProcessHelperIns.Logger.Error($"串口读取错误: {ex.Message}");
             }
         }
 
@@ -552,8 +559,8 @@ namespace SCADA.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"状态检查异常: {ex.Message}");
-
+                    Task.Factory.StartNew(() => Message.Enqueue($"状态检查异常: {ex.Message}"));
+                    NLogHelper.NLogProcessHelperIns.Logger.Error($"状态检查异常: {ex.Message}");
                     // 防止异常导致循环退出，延迟后继续
                     await Task.Delay(5000);
                 }
@@ -572,6 +579,7 @@ namespace SCADA.ViewModels
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
+                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
             }
         }
 
@@ -597,7 +605,7 @@ namespace SCADA.ViewModels
             TimeSpan timeDiff = DateTime.Now - time;
             Time = $"{timeDiff.Minutes}分{timeDiff.Seconds}秒";
             TimingCatagory = name;
-            if (status.StopID == 1 && timeDiff.TotalSeconds >= 10)
+            if (status.StopID == 1 && timeDiff.TotalSeconds >= 20)
             {
                 InitTiming();
             }
