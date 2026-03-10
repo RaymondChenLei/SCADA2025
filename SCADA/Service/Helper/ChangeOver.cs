@@ -14,12 +14,13 @@ namespace SCADA.Service.Helper
         public bool IfNeedScan(KanbanStatus newKB)
         {
             var result = _statusService.GetLastKB();
-            bool allMaterialsMatch = newKB.MaterialD == result.MaterialD &&
-                             newKB.MaterialE == result.MaterialE &&
-                             newKB.MaterialF == result.MaterialF &&
-                             newKB.MaterialG == result.MaterialG &&
-                             newKB.MaterialH == result.MaterialH &&
-                             newKB.MaterialI == result.MaterialI;
+            bool match1 = (newKB.MaterialD ?? "") == (result.MaterialD ?? "");
+            bool match2 = (newKB.MaterialE ?? "") == (result.MaterialE ?? "");
+            bool match3 = (newKB.MaterialF ?? "") == (result.MaterialF ?? "");
+            bool match4 = (newKB.MaterialG ?? "") == (result.MaterialG ?? "");
+            bool match5 = (newKB.MaterialH ?? "") == (result.MaterialH ?? "");
+            bool match6 = (newKB.MaterialI ?? "") == (result.MaterialI ?? "");
+            bool allMaterialsMatch = match1 && match2 && match3 && match4 && match5 && match6;
             return !allMaterialsMatch;
         }
 

@@ -31,7 +31,7 @@ namespace SCADA.ViewModels.HomePages
             _KanbanCountService = new(SQLiteService.Instance.Db);
             _equipmentcatalogservice = new(SQLiteService.Instance.Db);
             eventAggregator.GetEvent<TextUpdatedEvent>().Subscribe(text => TargetValue = text + initData.TotalCount);
-            eventAggregator.GetEvent<KBChangeEvent>().Subscribe(kb => ChangeKB(kb, true));
+            eventAggregator.GetEvent<KBChangeEvent>().Subscribe(kb => ScanChangeKB(kb));
             AddNG = new(AddNGExecution);
             AddSample = new(AddSampleExecution);
             SubtractNG = new(SubtractNGExecution);
@@ -153,75 +153,46 @@ namespace SCADA.ViewModels.HomePages
             }
         }
 
-        private void ChangeKB(string kanban, bool isScan)
+        private void ScanChangeKB(string scankanban)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(kanban))
-                {
-                    return;
-                }
-                else if (_kanbanstatusservice.GetLastKB().KB == kanban)
+                if (string.IsNullOrWhiteSpace(scankanban))
                 {
                     return;
                 }
                 else
                 {
-                    if (isScan)
-                    {
-                        MessageBoxResult result = MessageBox.Show
+                    MessageBoxResult result = MessageBox.Show
                         (
-                        $"确定切换为看板{kanban}吗？",
+                        $"确定切换为看板{scankanban}吗？",
                         "切换看板确认",
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question
                         );
-                        if (result == MessageBoxResult.Yes)
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        var KBinfo = _sqliteKanbanservice.GetInfobyKB(scankanban);
+                        KanbanStatus newKBstatus = new()
                         {
-                            ChangingKB(kanban);
-                        }
-                        else
+                            MaterialD = KBinfo.ACenterTerminalDieNo,
+                            MaterialE = KBinfo.ACenterTerminalNo,
+                            MaterialF = KBinfo.BCenterTerminalDieNo,
+                            MaterialG = KBinfo.BCenterTerminalNo
+                        };
+                        ChangeOver OC = new();
+                        if (TargetValue > 0)
                         {
-                            result = MessageBoxResult.No;
+                            SaveLastKB();
                         }
+                        CounterZeroize(scankanban);
+                        GlobalSettings.Instance.KB = scankanban;
+                        SettingKB(scankanban, OC.IfNeedScan(newKBstatus));
                     }
                     else
                     {
-                        ChangingKB(kanban);
+                        return;
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
-                NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
-            }
-        }
-
-        private void ChangingKB(string KB)
-        {
-            try
-            {
-                if (TargetValue > 0)
-                {
-                    SaveLastKB();
-                }
-                CounterZeroize(KB);
-                GlobalSettings.Instance.KB = KB;
-                Kanban = KB;
-                var KBinfo = _sqliteKanbanservice.GetInfobyKB(KB);
-                KanbanTitleA = "看板号：";
-                KanbanTitleB = "零件号：";
-                KanbanTitleC = "项目名：";
-                KanbanInfoA = KBinfo.KanbanNo;
-                KanbanInfoB = KBinfo.KanbanName;
-                KanbanInfoC = KBinfo.ProjectName;
-                var kbjson = JsonConvert.DeserializeObject<List<KBJson>>(KBinfo.JsonContent);
-                TimingHelper timing = new();
-                timing.TimingSetting(5, out string timingcatagory);
-                if (GlobalSettings.Instance.ProductNo.Contains("HSD410"))
-                {
-                    FreshHSD410KanbanInfo(KBinfo, kbjson);
                 }
             }
             catch (Exception ex)
@@ -270,91 +241,13 @@ namespace SCADA.ViewModels.HomePages
             }
         }
 
-        private void FreshHSD410KanbanInfo(HSDKanban kBinfo, List<KBJson> kbjson)
+        private void FreshHSD410KanbanInfo(HSDKanban kBinfo, List<KBJson> kbjson, bool ifNeedScan)
         {
             try
             {
-                KanbanTitleD = "中心导体1模具：";
-                KanbanTitleE = "中心导体1端子：";
-                KanbanTitleF = "中心导体2模具：";
-                KanbanTitleG = "中心导体2端子：";
-                KanbanInfoD = kBinfo.ACenterTerminalDieNo;
-                KanbanInfoE = kBinfo.ACenterTerminalNo;
-                KanbanInfoF = kBinfo.BCenterTerminalDieNo;
-                KanbanInfoG = kBinfo.BCenterTerminalNo;
-                if (GlobalSettings.Instance.ScanDialog)
+                if (ifNeedScan)
                 {
-                    KanbanStatus newKB = new()
-                    {
-                        KB = kBinfo.KanbanNo,
-                        MaterialD = KanbanInfoD,
-                        MaterialE = KanbanInfoE,
-                        MaterialF = KanbanInfoF,
-                        MaterialG = KanbanInfoG,
-                        Shift = GlobalSettings.Instance.Shift,
-                        ShiftDate = GlobalSettings.Instance.ShiftDate
-                    };
-                    _kanbanstatusservice.UpdatePartsKBStatus(newKB);
-                    if (DieParasOrange is not null)
-                    {
-                        DieParasOrange.Clear();
-                    }
-                    if (DieParasBlue is not null)
-                    {
-                        DieParasBlue.Clear();
-                    }
-                    if (DieParasBrown is not null)
-                    {
-                        DieParasBrown.Clear();
-                    }
-                    if (DieParasGreen is not null)
-                    {
-                        DieParasGreen.Clear();
-                    }
-                    foreach (var item in kbjson)
-                    {
-                        StringDouble value = new()
-                        {
-                            Title = item.Name,
-                            Value1 = item.MinValue,
-                            Value2 = item.MaxValue
-                        };
-                        DieParasOrange.Add(value);
-                    }
-                    foreach (var item in kbjson)
-                    {
-                        StringDouble value = new()
-                        {
-                            Title = item.Name,
-                            Value1 = item.MinValue,
-                            Value2 = item.MaxValue
-                        };
-                        DieParasBlue.Add(value);
-                    }
-                    foreach (var item in kbjson)
-                    {
-                        StringDouble value = new()
-                        {
-                            Title = item.Name,
-                            Value1 = item.MinValue,
-                            Value2 = item.MaxValue
-                        };
-                        DieParasBrown.Add(value);
-                    }
-                    foreach (var item in kbjson)
-                    {
-                        StringDouble value = new()
-                        {
-                            Title = item.Name,
-                            Value1 = item.MinValue,
-                            Value2 = item.MaxValue
-                        };
-                        DieParasGreen.Add(value);
-                    }
-                    ChangeOver CO = new();
-                    if (CO.IfNeedScan(newKB))
-                    {
-                        DialogParameters p = new()
+                    DialogParameters p = new()
                 {
                     { "Type","All"},
                     { "MaterialDName","中心导体1模具" },
@@ -363,16 +256,23 @@ namespace SCADA.ViewModels.HomePages
                     { "MaterialGName","中心导体2端子" },
                     { "MaterialHName","" },
                     { "MaterialIName","" },
-                    { "MaterialDTarget",KanbanInfoD },
-                    { "MaterialETarget",KanbanInfoE },
-                    { "MaterialFTarget",KanbanInfoF },
-                    { "MaterialGTarget",KanbanInfoG },
+                    { "MaterialDTarget",kBinfo.ACenterTerminalDieNo },
+                    { "MaterialETarget",kBinfo.ACenterTerminalNo },
+                    { "MaterialFTarget",kBinfo.BCenterTerminalDieNo },
+                    { "MaterialGTarget",kBinfo.BCenterTerminalNo },
                     { "MaterialHTarget","" },
                     { "MaterialITarget","" },
                 };
-                        _dialogHostService.ShowDialog("ScanDialog", p);
-                    }
+                    _dialogHostService.ShowDialog("ScanDialog", p);
                 }
+                KanbanTitleD = "中心导体1模具：";
+                KanbanTitleE = "中心导体1端子：";
+                KanbanTitleF = "中心导体2模具：";
+                KanbanTitleG = "中心导体2端子：";
+                KanbanInfoD = kBinfo.ACenterTerminalDieNo;
+                KanbanInfoE = kBinfo.ACenterTerminalNo;
+                KanbanInfoF = kBinfo.BCenterTerminalDieNo;
+                KanbanInfoG = kBinfo.BCenterTerminalNo;
             }
             catch (Exception ex)
             {
@@ -385,39 +285,111 @@ namespace SCADA.ViewModels.HomePages
         {
             try
             {
-                var kb = _kanbanstatusservice.GetLastKB().KB;
-                ChangeKB(kb, _kanbanstatusservice.IfKBScanDone());
-                initData = _countstatusservice.GetData();
-                TargetValue = initData.TotalCount;
-                NGQty = initData.NGCount;
-                SampleQty = initData.SampleCount;
-                GoodQty = initData.GoodCount;
-                Kanban = _kanbanstatusservice.GetLastKB().KB;
-                if (!_kanbanstatusservice.IfKBScanDone())
+                var kb = _kanbanstatusservice.GetLastKB();
+                if (string.IsNullOrWhiteSpace(kb.KB))
                 {
-                    DialogParameters p = new()
+                    return;
+                }
+                else
                 {
-                    { "Type","All"},
-                    { "MaterialDName","中心导体1模具" },
-                    { "MaterialEName","中心导体1端子" },
-                    { "MaterialFName","中心导体2模具" },
-                    { "MaterialGName","中心导体2端子" },
-                    { "MaterialHName","" },
-                    { "MaterialIName","" },
-                    { "MaterialDTarget",KanbanInfoD },
-                    { "MaterialETarget",KanbanInfoE },
-                    { "MaterialFTarget",KanbanInfoF },
-                    { "MaterialGTarget",KanbanInfoG },
-                    { "MaterialHTarget","" },
-                    { "MaterialITarget","" },
-                };
-                    _dialogHostService.ShowDialog("ScanDialog", p);
+                    SettingKB(kb.KB, !kb.ScanDone);
                 }
             }
             catch (Exception ex)
             {
                 Task.Factory.StartNew(() => Message.Enqueue(ex.Message));
                 NLogHelper.NLogProcessHelperIns.Logger.Error(ex.Message);
+            }
+        }
+
+        private void SettingKB(string kb, bool ifNeedScan)
+        {
+            initData = _countstatusservice.GetData();
+            TargetValue = initData.TotalCount;
+            NGQty = initData.NGCount;
+            SampleQty = initData.SampleCount;
+            GoodQty = initData.GoodCount;
+            Kanban = kb;
+            var KBinfo = _sqliteKanbanservice.GetInfobyKB(kb);
+            KanbanTitleA = "看板号：";
+            KanbanTitleB = "零件号：";
+            KanbanTitleC = "项目名：";
+            KanbanInfoA = KBinfo.KanbanNo;
+            KanbanInfoB = KBinfo.KanbanName;
+            KanbanInfoC = KBinfo.ProjectName;
+            var kbjson = JsonConvert.DeserializeObject<List<KBJson>>(KBinfo.JsonContent);
+            TimingHelper timing = new();
+            timing.TimingSetting(5, out string timingcatagory);
+            if (GlobalSettings.Instance.ProductNo.Contains("HSD410"))
+            {
+                FreshHSD410KanbanInfo(KBinfo, kbjson, ifNeedScan);
+            }
+            KanbanStatus newKB = new()
+            {
+                KB = KBinfo.KanbanNo,
+                MaterialD = KanbanInfoD,
+                MaterialE = KanbanInfoE,
+                MaterialF = KanbanInfoF,
+                MaterialG = KanbanInfoG,
+                Shift = GlobalSettings.Instance.Shift,
+                ShiftDate = GlobalSettings.Instance.ShiftDate
+            };
+            _kanbanstatusservice.UpdatePartsKBStatus(newKB);
+            if (DieParasOrange is not null)
+            {
+                DieParasOrange.Clear();
+            }
+            if (DieParasBlue is not null)
+            {
+                DieParasBlue.Clear();
+            }
+            if (DieParasBrown is not null)
+            {
+                DieParasBrown.Clear();
+            }
+            if (DieParasGreen is not null)
+            {
+                DieParasGreen.Clear();
+            }
+            foreach (var item in kbjson)
+            {
+                StringDouble value = new()
+                {
+                    Title = item.Name,
+                    Value1 = item.MinValue,
+                    Value2 = item.MaxValue
+                };
+                DieParasOrange.Add(value);
+            }
+            foreach (var item in kbjson)
+            {
+                StringDouble value = new()
+                {
+                    Title = item.Name,
+                    Value1 = item.MinValue,
+                    Value2 = item.MaxValue
+                };
+                DieParasBlue.Add(value);
+            }
+            foreach (var item in kbjson)
+            {
+                StringDouble value = new()
+                {
+                    Title = item.Name,
+                    Value1 = item.MinValue,
+                    Value2 = item.MaxValue
+                };
+                DieParasBrown.Add(value);
+            }
+            foreach (var item in kbjson)
+            {
+                StringDouble value = new()
+                {
+                    Title = item.Name,
+                    Value1 = item.MinValue,
+                    Value2 = item.MaxValue
+                };
+                DieParasGreen.Add(value);
             }
         }
 
