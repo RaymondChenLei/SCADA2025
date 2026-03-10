@@ -10,10 +10,10 @@ namespace SCADA.Service.Models
     [SugarTable("DailyCheckReview")]
     public class DailyCheckReview
     {
-        [SugarColumn(IsIdentity = true, IsNullable = false, ColumnName = "ID")]
+        [SugarColumn(IsIdentity = true, IsNullable = false, IsPrimaryKey = true, ColumnName = "ID")]
         public int ID { get; set; }
 
-        [SugarColumn(IsIdentity = false, IsNullable = false, IsPrimaryKey = true, ColumnName = "SID")]
+        [SugarColumn(IsIdentity = false, IsNullable = false, ColumnName = "SID")]
         public Int64 SID { get; set; }
 
         [SugarColumn(IsNullable = false, ColumnDataType = "nvarchar", Length = 10, ColumnName = "Shift")]

@@ -17,7 +17,7 @@ namespace SCADA.Service.SqlServer
 
         public void InsertRecord(DailyCheckReview review)
         {
-            Client.Storageable(review).ExecuteCommand();
+            Client.Storageable(review).WhereColumns(x => x.SID).ExecuteCommand();
         }
     }
 }

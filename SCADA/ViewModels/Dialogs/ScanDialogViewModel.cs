@@ -63,6 +63,7 @@ namespace SCADA.ViewModels.Dialogs
             targetG = parameters.GetValue<string>("MaterialGTarget");
             targetH = parameters.GetValue<string>("MaterialHTarget");
             targetI = parameters.GetValue<string>("MaterialITarget");
+            kanban = parameters.GetValue<string>("Kanban");
             switch (equipment)
             {
                 case "HSD410-2":
@@ -209,7 +210,7 @@ namespace SCADA.ViewModels.Dialogs
                             Speak($"{nameG}扫描成功！扫描完成！");
                             KanbanStatus data = new()
                             {
-                                KB = GlobalSettings.Instance.KB,
+                                KB = kanban,
                                 MaterialD = targetD,
                                 MaterialE = targetE,
                                 MaterialF = targetF,
@@ -256,6 +257,7 @@ namespace SCADA.ViewModels.Dialogs
         private string targetG;
         private string targetH;
         private string targetI;
+        private string kanban;
         private string _backgroundImage;
         private Visibility _checkDvis = Visibility.Hidden;
         private Visibility _checkEvis = Visibility.Hidden;

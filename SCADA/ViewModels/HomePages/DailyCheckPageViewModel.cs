@@ -208,7 +208,7 @@ namespace SCADA.ViewModels.HomePages
                     Remark = ProblemJson
                 };
                 _dailycheckreviewservice.InsertRecord(review);
-
+                GlobalSettings.Instance.IsNeedDailyCheck = false;
                 Task.Factory.StartNew(() => Message.Enqueue("已提交！"));
             }
         }

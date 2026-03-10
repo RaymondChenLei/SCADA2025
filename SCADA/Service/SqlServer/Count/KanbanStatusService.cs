@@ -49,7 +49,6 @@ namespace SCADA.Service.SqlServer.Count
             {
                 Client.Updateable(newKB)
                     .Where(x => x.Id == result.FirstOrDefault().Id)
-                    .WhereColumns(x => new { x.KB, x.MaterialD, x.MaterialE, x.MaterialF, x.MaterialG, x.Shift, x.ShiftDate })
                     .ExecuteCommand();
             }
             else

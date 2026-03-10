@@ -27,6 +27,8 @@ namespace SCADA.ViewModels
             _SQLServerstopservice = new(SqlService.Instance.Client);
             _sqlserverkanbanService = new(SqlService.Instance.Client);
             _sqlitekanbanService = new(SQLiteService.Instance.Db);
+            _SQLServerdailycheckTypeListService = new(SqlService.Instance.Client);
+            _SQLitedailycheckTypeListService = new(SQLiteService.Instance.Db);
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
             eventAggregator.GetEvent<CounterZeroizeEvent>().Subscribe(c => Counter = c);
@@ -374,9 +376,16 @@ namespace SCADA.ViewModels
 
         private void Navigate(MenuBar bar)
         {
-            if (bar == null || string.IsNullOrWhiteSpace(bar.NameSpace))
-                return;
-            _regionManager.Regions[PrismManager.MainWindowRegionName].RequestNavigate(bar.NameSpace);
+            if (GlobalSettings.Instance.CurrentUserId == "default")
+            {
+                Task.Factory.StartNew(() => Message.Enqueue("请先刷卡登录"));
+            }
+            else
+            {
+                if (bar == null || string.IsNullOrWhiteSpace(bar.NameSpace))
+                    return;
+                _regionManager.Regions[PrismManager.MainWindowRegionName].RequestNavigate(bar.NameSpace);
+            }
         }
 
         private void PortRead()
@@ -573,8 +582,10 @@ namespace SCADA.ViewModels
             {
                 var sqldata = _SQLServerstopservice.GetAllData();
                 var sqlkabban = _sqlserverkanbanService.GetKanban(GlobalSettings.Instance.ProductNo);
+                var sqldailychecktypelist = _SQLServerdailycheckTypeListService.GetAllData();
                 _stopcatalogservice.UpdataAllData(sqldata);
                 _sqlitekanbanService.UpdataAllKanban(sqlkabban);
+                _SQLitedailycheckTypeListService.UpdateAllData(sqldailychecktypelist);
             }
             catch (Exception ex)
             {
@@ -662,6 +673,8 @@ namespace SCADA.ViewModels
         private HSDKanbanService _sqlserverkanbanService;
         private StopCatelogService _SQLServerstopservice;
         private StopCatelogService _stopcatalogservice;
+        private DailyCheckTypeListService _SQLServerdailycheckTypeListService;
+        private DailyCheckTypeListService _SQLitedailycheckTypeListService;
         private string _tikclock;
         private string _time;
         private string _timingcatagory;

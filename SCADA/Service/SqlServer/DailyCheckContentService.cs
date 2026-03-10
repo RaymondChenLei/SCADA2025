@@ -12,7 +12,7 @@ namespace SCADA.Service.SqlServer
     {
         public DailyCheckContentService(ISqlSugarClient client) : base(client)
         {
-            //SetTable<DailyCheckContent>("MaintenanceCheckContent");
+            SetTable<DailyCheckContent>("MaintenanceCheckContent");
         }
 
         public List<DailyCheckContent> GetApprovedContent(string type)

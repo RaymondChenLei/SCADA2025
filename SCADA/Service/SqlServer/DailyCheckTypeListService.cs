@@ -12,7 +12,17 @@ namespace SCADA.Service.SqlServer
     {
         public DailyCheckTypeListService(ISqlSugarClient client) : base(client)
         {
-            //SetTable<DailyCheckTypeList>("DailyCheckTypeList");
+            SetTable<DailyCheckTypeList>("DailyCheckTypeList");
+        }
+
+        internal List<DailyCheckTypeList> GetAllData()
+        {
+            return Client.Queryable<DailyCheckTypeList>().ToList();
+        }
+
+        internal void UpdateAllData(List<DailyCheckTypeList> sqldailychecktypelist)
+        {
+            Client.Storageable(sqldailychecktypelist).WhereColumns(x => x.Type).ExecuteCommand();
         }
     }
 }

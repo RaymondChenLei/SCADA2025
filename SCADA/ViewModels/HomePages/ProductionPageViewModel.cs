@@ -262,6 +262,7 @@ namespace SCADA.ViewModels.HomePages
                     { "MaterialGTarget",kBinfo.BCenterTerminalNo },
                     { "MaterialHTarget","" },
                     { "MaterialITarget","" },
+                    { "Kanban",kBinfo.KanbanNo },
                 };
                     _dialogHostService.ShowDialog("ScanDialog", p);
                 }
@@ -292,7 +293,8 @@ namespace SCADA.ViewModels.HomePages
                 }
                 else
                 {
-                    SettingKB(kb.KB, !kb.ScanDone);
+                    bool ifScan = GlobalSettings.Instance.IsNeedDailyCheck || (!kb.ScanDone);
+                    SettingKB(kb.KB, ifScan);
                 }
             }
             catch (Exception ex)
